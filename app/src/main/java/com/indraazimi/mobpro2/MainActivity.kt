@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -98,21 +99,32 @@ fun LoginScreen(modifier: Modifier = Modifier, user: MutableState<FirebaseUser?>
                 .clip(CircleShape),
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = {
-                val providers = arrayListOf(
-                    AuthUI.IdpConfig.GoogleBuilder().build()
-                )
+        if (user.value == null) {
+            Button(
+                onClick = {
+                    val providers = arrayListOf(
+                        AuthUI.IdpConfig.GoogleBuilder().build()
+                    )
 
-                val signInIntent = AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(providers)
-                    .build()
+                    val signInIntent = AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(providers)
+                        .build()
 
-                launcher.launch(signInIntent)
-            },
-        ) {
-            Text(text = stringResource(R.string.login))
+                    launcher.launch(signInIntent)
+                },
+            ) {
+                Text(text = stringResource(R.string.login))
+            }
+        } else {
+            Button(
+                onClick = {
+                    FirebaseAuth.getInstance().signOut()
+                    user.value = null
+                },
+            ) {
+                Text(text = stringResource(R.string.logout))
+            }
         }
     }
 }
