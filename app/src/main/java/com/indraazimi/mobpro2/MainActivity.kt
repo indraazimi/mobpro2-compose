@@ -1,6 +1,5 @@
 package com.indraazimi.mobpro2
 
-import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -31,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.firebase.ui.auth.AuthUI
@@ -125,14 +123,5 @@ fun LoginScreen(modifier: Modifier = Modifier, user: MutableState<FirebaseUser?>
                 Text(text = stringResource(R.string.logout))
             }
         }
-    }
-}
-
-@SuppressLint("UnrememberedMutableState")
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Mobpro2Theme {
-        LoginScreen(Modifier.padding(10.dp), mutableStateOf(null))
     }
 }
