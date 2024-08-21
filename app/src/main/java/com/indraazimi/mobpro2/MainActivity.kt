@@ -7,8 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,10 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,7 +47,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Mobpro2Theme {
-                val user: MutableState<FirebaseUser?> = remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
+                val user: MutableState<FirebaseUser?> = remember {
+                    mutableStateOf(FirebaseAuth.getInstance().currentUser)
+                }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
@@ -94,7 +91,7 @@ fun LoginScreen(modifier: Modifier = Modifier, user: MutableState<FirebaseUser?>
     ) {
         AsyncImage(
             model = FirebaseAuth.getInstance().currentUser?.photoUrl,
-            contentDescription = "Profile Image",
+            contentDescription = stringResource(id = R.string.profile_photo),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(200.dp)
@@ -104,7 +101,6 @@ fun LoginScreen(modifier: Modifier = Modifier, user: MutableState<FirebaseUser?>
         Button(
             onClick = {
                 val providers = arrayListOf(
-                    AuthUI.IdpConfig.EmailBuilder().build(),
                     AuthUI.IdpConfig.GoogleBuilder().build()
                 )
 
@@ -116,7 +112,7 @@ fun LoginScreen(modifier: Modifier = Modifier, user: MutableState<FirebaseUser?>
                 launcher.launch(signInIntent)
             },
         ) {
-            Text(text = stringResource(R.string.title))
+            Text(text = stringResource(R.string.login))
         }
     }
 }
