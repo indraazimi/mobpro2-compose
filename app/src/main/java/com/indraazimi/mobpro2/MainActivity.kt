@@ -87,6 +87,10 @@ fun LoginScreen(modifier: Modifier = Modifier, user: MutableState<FirebaseUser?>
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        if (user.value != null) {
+            Text(text = user.value?.displayName?: "")
+            Spacer(modifier = Modifier.height(16.dp))
+        }
         AsyncImage(
             model = FirebaseAuth.getInstance().currentUser?.photoUrl,
             contentDescription = stringResource(id = R.string.profile_photo),
