@@ -13,6 +13,7 @@ composeBom = "2024.06.00"
 googleServices = "4.4.2"
 coilCompose = "2.4.0"
 
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
