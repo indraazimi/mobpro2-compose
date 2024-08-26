@@ -5,4 +5,16 @@
     <string name="login">Masuk</string>
     <string name="logout">Keluar</string>
     <string name="profile_photo">Foto Profil</string>
+
+    <string name="add_data">Tambah Data</string>
+
+    <string name="name">Nama</string>
+    <string name="lecturer_code">Kode Dosen</string>
+    <string name="save">Simpan</string>
+
+    <string name="add_class">Tambah Kelas</string>
+
+    <string name="profile">Profil</string>
+
+    <string name="email">Email</string>
 </resources>

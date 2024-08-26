@@ -1,7 +1,6 @@
 package com.indraazimi.mobpro2.data
 
 import com.google.firebase.database.FirebaseDatabase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 class DataDB {
     private val database = FirebaseDatabase.getInstance()

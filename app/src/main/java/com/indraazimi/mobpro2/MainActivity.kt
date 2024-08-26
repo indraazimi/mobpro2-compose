@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.FirebaseAuth
 import com.indraazimi.mobpro2.navigation.SetupNavGraph
 import com.indraazimi.mobpro2.ui.theme.Mobpro2Theme
 
@@ -57,7 +57,8 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                 ) { paddingValues ->
-                    val user = remember { mutableStateOf<FirebaseUser?>(null) }
+                    val user = remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
+
                     SetupNavGraph(navController = navController, user = user, modifier = Modifier.padding(paddingValues))
                 }
             }

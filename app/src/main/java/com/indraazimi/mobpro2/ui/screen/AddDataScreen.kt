@@ -17,9 +17,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseUser
+import com.indraazimi.mobpro2.R
+import com.indraazimi.mobpro2.navigation.Screen
 import com.indraazimi.mobpro2.viewmodels.DataViewModel
 import com.indraazimi.mobpro2utils.models.Dosen
 
@@ -37,14 +40,14 @@ fun AddDataScreen(navController: NavController, user: MutableState<FirebaseUser?
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Text(text = "Add Data Screen")
+        Text(text = stringResource(id = R.string.add_data))
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = nameData,
             onValueChange = { nameData = it },
-            label = { Text("Name") }
+            label = { Text(stringResource(id = R.string.name)) }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -52,7 +55,7 @@ fun AddDataScreen(navController: NavController, user: MutableState<FirebaseUser?
         OutlinedTextField(
             value = kodeDosenData,
             onValueChange = { kodeDosenData = it },
-            label = { Text("Kode Dosen") }
+            label = { Text(stringResource(id = R.string.lecturer_code)) }
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -67,11 +70,11 @@ fun AddDataScreen(navController: NavController, user: MutableState<FirebaseUser?
 
                 dataViewModel.addDosen(newDosenData)
 
-                navController.navigate("profileScreen")
+                navController.navigate(Screen.Profile.route)
             },
             modifier = Modifier.align(Alignment.End)
         ) {
-            Text("Save")
+            Text(stringResource(id = R.string.save))
         }
     }
 }

@@ -31,6 +31,7 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.indraazimi.mobpro2.R
+import com.indraazimi.mobpro2.navigation.Screen
 import com.indraazimi.mobpro2.viewmodels.DataViewModel
 
 @Composable
@@ -50,11 +51,11 @@ fun LoginScreen(modifier: Modifier = Modifier, user: MutableState<FirebaseUser?>
     LaunchedEffect (key1 = loading) {
         if (loading == false) {
             if (dosen == null && user.value != null) {
-                navController.navigate("addDataScreen")
+                navController.navigate(Screen.AddData.route)
             }
 
             if (dosen != null && user.value != null) {
-                navController.navigate("profileScreen")
+                navController.navigate(Screen.Profile.route)
             }
         }
     }

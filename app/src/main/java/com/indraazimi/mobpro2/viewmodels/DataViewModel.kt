@@ -31,7 +31,7 @@ class DataViewModel() : ViewModel() {
     private val _allMahasiswa: MutableStateFlow<List<Mahasiswa>> = MutableStateFlow(emptyList())
     val allMahasiswa: StateFlow<List<Mahasiswa>> = _allMahasiswa.asStateFlow()
 
-    private val _loading: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _loading: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
     init {

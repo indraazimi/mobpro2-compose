@@ -17,10 +17,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseUser
+import com.indraazimi.mobpro2.R
+import com.indraazimi.mobpro2.navigation.Screen
 import com.indraazimi.mobpro2.viewmodels.DataViewModel
 import com.indraazimi.mobpro2utils.models.Kelas
 
@@ -31,7 +34,7 @@ fun AddClassScreen(navController: NavController, user: MutableState<FirebaseUser
     var nameData by remember { mutableStateOf("") }
 
     if (user.value == null) {
-        navController.navigate("loginScreen")
+        navController.navigate(Screen.Login.route)
     }
 
     Column(
@@ -41,14 +44,14 @@ fun AddClassScreen(navController: NavController, user: MutableState<FirebaseUser
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Text(text = "Add Class Screen")
+        Text(text = stringResource(id = R.string.add_class))
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = nameData,
             onValueChange = { nameData = it },
-            label = { Text("Name") }
+            label = { Text(stringResource(id = R.string.name)) }
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -67,7 +70,7 @@ fun AddClassScreen(navController: NavController, user: MutableState<FirebaseUser
                 navController.popBackStack()
             }
         ) {
-            Text("Add Class")
+            Text(stringResource(id = R.string.save))
         }
     }
 }

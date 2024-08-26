@@ -4,4 +4,15 @@
     <string name="login">Login</string>
     <string name="logout">Logout</string>
     <string name="profile_photo">Profile Photo</string>
+
+    <string name="add_data">Add Data</string>
+    <string name="name">Name</string>
+    <string name="lecturer_code">Lecturer Code</string>
+    <string name="save">Save</string>
+
+    <string name="add_class">Add Class</string>
+
+    <string name="profile">Profile</string>
+
+    <string name="email">Email</string>
 </resources>

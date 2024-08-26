@@ -3,6 +3,7 @@ package com.indraazimi.mobpro2.ui.screen
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,16 +44,15 @@ import com.indraazimi.mobpro2utils.models.Kelas
 @Composable
 fun ProfileScreen(navController: NavController, user: MutableState<FirebaseUser?>, modifier: Modifier) {
     val viewModel: DataViewModel = viewModel()
-
-    LaunchedEffect(key1 = Unit) {
-        user.value?.uid?.let { uid ->
-            viewModel.getDosenByID(uid)
-            viewModel.getKelasByDosenID(user.value?.uid ?: "")
-        }
-    }
-
     val dosen by viewModel.selectedDosen.collectAsStateWithLifecycle()
     val kelas by viewModel.allKelas.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = user.value?.uid) {
+        user.value?.uid?.let { uid ->
+            viewModel.getDosenByID(uid)
+            viewModel.getKelasByDosenID(uid)
+        }
+    }
 
     Column(
         modifier = modifier
@@ -62,7 +62,7 @@ fun ProfileScreen(navController: NavController, user: MutableState<FirebaseUser?
         verticalArrangement = Arrangement.Top,
     ) {
         Text(
-            text = "Profile Screen",
+            text = stringResource(id = R.string.profile),
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -78,18 +78,18 @@ fun ProfileScreen(navController: NavController, user: MutableState<FirebaseUser?
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ProfileDetailRow(label = "Nama", value = dosen?.nama ?: "")
-        ProfileDetailRow(label = "Email", value = user.value?.email ?: "")
-        ProfileDetailRow(label = "Kode Dosen", value = dosen?.kodeDosen ?: "")
+        ProfileDetailRow(label = stringResource(id = R.string.name), value = dosen?.nama ?: "")
+        ProfileDetailRow(label = stringResource(id = R.string.email), value = user.value?.email ?: "")
+        ProfileDetailRow(label = stringResource(id = R.string.lecturer_code), value = dosen?.kodeDosen ?: "")
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
             FirebaseAuth.getInstance().signOut()
             user.value = null
-            navController.navigate("loginScreen")
+            navController.navigate(Screen.Login.route)
         }) {
-            Text("Sign Out")
+            Text(stringResource(id = R.string.logout))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -97,8 +97,16 @@ fun ProfileScreen(navController: NavController, user: MutableState<FirebaseUser?
         HorizontalDivider()
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        ClassList(kelas = kelas, navController = navController)
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(16.dp),
+        ) {
+            items(kelas) {
+                ClassList(kelas = it) {
+                    navController.navigate(Screen.StudentList.withClassID(it.id))
+                }
+            }
+        }
     }
 }
 
@@ -123,23 +131,19 @@ fun ProfileDetailRow(label: String, value: String) {
 }
 
 @Composable
-fun ClassList(navController: NavController, kelas: List<Kelas>) {
-    LazyColumn {
-        items(kelas) { kelas ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        navController.navigate(Screen.StudentList.withClassID(kelas.id))
-                    }
-                    .padding(8.dp)
-            ) {
-                Text(
-                    text = kelas.nama,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(8.dp)
-                )
+fun ClassList(kelas: Kelas, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                onClick()
             }
-        }
+            .padding(8.dp)
+    ) {
+        Text(
+            text = kelas.nama,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(8.dp)
+        )
     }
 }
