@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.indraazimi.mobpro2"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -62,10 +62,17 @@ dependencies {
     implementation(libs.androidx.material3)
 
     implementation(platform(libs.firebase.bom))
-
     implementation(libs.firebase.ui.auth.ktx)
 
     implementation(libs.coil.compose)
+
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(project(":utils"))
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.database.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
