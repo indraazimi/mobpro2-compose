@@ -104,15 +104,6 @@ fun LoginScreen(modifier: Modifier = Modifier, user: MutableState<FirebaseUser?>
             ) {
                 Text(text = stringResource(R.string.login))
             }
-        } else {
-            Button(
-                onClick = {
-                    FirebaseAuth.getInstance().signOut()
-                    user.value = null
-                },
-            ) {
-                Text(text = stringResource(R.string.logout))
-            }
         }
     }
 }

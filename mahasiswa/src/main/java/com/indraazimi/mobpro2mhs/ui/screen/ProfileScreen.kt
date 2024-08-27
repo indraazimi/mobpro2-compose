@@ -1,16 +1,19 @@
 package com.indraazimi.mobpro2mhs.ui.screen
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,22 +23,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.indraazimi.mobpro2mhs.R
-import com.indraazimi.mobpro2mhs.navigation.Screen
 import com.indraazimi.mobpro2mhs.viewmodels.DataViewModel
+import com.indraazimi.mobpro2utils.models.Kelas
 
 @Composable
-fun ProfileScreen(navController: NavController, user: MutableState<FirebaseUser?>, modifier: Modifier) {
+fun ProfileScreen(user: MutableState<FirebaseUser?>, modifier: Modifier) {
     val viewModel: DataViewModel = viewModel()
     val mahasiswa by viewModel.selectedMahasiswa.collectAsStateWithLifecycle()
     val kelas by viewModel.selectedKelas.collectAsStateWithLifecycle()
@@ -54,62 +54,108 @@ fun ProfileScreen(navController: NavController, user: MutableState<FirebaseUser?
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
-        Text(
-            text = stringResource(id = R.string.profile),
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 16.dp)
+        ProfileCard(
+            photoUrl = user.value?.photoUrl.toString(),
+            name = mahasiswa?.nama ?: "",
+            nim = mahasiswa?.nim ?: "",
+            email = user.value?.email ?: "",
+            kelas = kelas?.nama ?: "",
         )
-
-        AsyncImage(
-            model = FirebaseAuth.getInstance().currentUser?.photoUrl,
-            contentDescription = stringResource(id = R.string.profile_photo),
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(150.dp)
-                .clip(CircleShape)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        ProfileDetailRow(label = stringResource(id = R.string.name), value = mahasiswa?.nama ?: "")
-        ProfileDetailRow(label = stringResource(id = R.string.email), value = user.value?.email ?: "")
-        ProfileDetailRow(label = stringResource(id = R.string.student_id), value = mahasiswa?.nim ?: "")
-        ProfileDetailRow(label = stringResource(id = R.string.class_name), value = kelas?.nama ?: "")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = {
-            FirebaseAuth.getInstance().signOut()
-            user.value = null
-            navController.navigate(Screen.Login.route)
-        }) {
-            Text(stringResource(id = R.string.logout))
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        HorizontalDivider()
-
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
 @Composable
-fun ProfileDetailRow(label: String, value: String) {
+fun ProfileCard(
+    photoUrl: String?,
+    name: String,
+    nim: String,
+    email: String,
+    kelas: String,
+) {
     Row(
         modifier = Modifier
-            .padding(vertical = 4.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth()
+            .border(1.dp, Color.Gray, MaterialTheme.shapes.small)
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = "$label:",
-            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-            modifier = Modifier.weight(1f)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.weight(2f)
-        )
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+                .border(1.dp, Color.Gray, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            if (photoUrl != null) {
+                AsyncImage(
+                    model = photoUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                )
+            } else {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .border(1.dp, Color.Gray, CircleShape)
+                ) {
+                    Text(
+                        text = nim,
+                        color = Color.White,
+                        fontSize = 24.sp
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "$name ($nim)",
+                style = MaterialTheme.typography.bodyLarge,
+                fontSize = 16.sp
+            )
+            Text(
+                text = email,
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 14.sp
+            )
+            Text(
+                text = kelas,
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 14.sp
+            )
+        }
+    }
+}
+
+@Composable
+fun ClassList(kelas: Kelas, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .clickable {
+                onClick()
+            },
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = kelas.nama,
+                style = MaterialTheme.typography.headlineSmall
+            )
+        }
     }
 }

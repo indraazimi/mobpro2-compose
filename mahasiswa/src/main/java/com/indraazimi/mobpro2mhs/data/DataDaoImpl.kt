@@ -21,14 +21,6 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
         db.getReference(KELAS_PATH).child(kelasId).child(MAHASISWA_PATH).child(mahasiswa.id).setValue(mahasiswa)
     }
 
-    override fun updateMahasiswa(id: String, mahasiswa: Mahasiswa) {
-        db.getReference(MAHASISWA_PATH).child(id).setValue(mahasiswa)
-    }
-
-    override fun deleteMahasiswa(ids: List<String>) {
-        ids.forEach { db.getReference(MAHASISWA_PATH).child(it).removeValue() }
-    }
-
     override suspend fun getMahasiswaByID(id: String): Mahasiswa? = suspendCancellableCoroutine { cont ->
         val reference = db.getReference(KELAS_PATH)
 
@@ -42,23 +34,6 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
 
         }.addOnFailureListener {
             cont.resume(null)
-        }
-    }
-
-    override fun getAllMahasiswa(): Flow<List<Mahasiswa>> {
-        return callbackFlow {
-            val listener = db.getReference(MAHASISWA_PATH).addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val dataList = snapshot.children.mapNotNull { it.getValue(Mahasiswa::class.java) }
-                    trySend(dataList)
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    close(error.toException())
-                }
-            })
-
-            awaitClose { db.getReference(MAHASISWA_PATH).removeEventListener(listener) }
         }
     }
 

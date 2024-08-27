@@ -89,6 +89,7 @@ class MainActivity : ComponentActivity() {
                                                 FirebaseAuth.getInstance().signOut()
                                                 user.value = null
                                                 navController.navigate(Screen.Login.route)
+                                                showMenu = false
                                             },
                                             text = {
                                                 Text(text = stringResource(R.string.logout))

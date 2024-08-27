@@ -21,9 +21,6 @@ class DataViewModel() : ViewModel() {
     private val _selectedKelas: MutableStateFlow<Kelas?> = MutableStateFlow(null)
     val selectedKelas: StateFlow<Kelas?> = _selectedKelas.asStateFlow()
 
-    private val _allMahasiswa: MutableStateFlow<List<Mahasiswa>> = MutableStateFlow(emptyList())
-    val allMahasiswa: StateFlow<List<Mahasiswa>> = _allMahasiswa.asStateFlow()
-
     private val _selectedMahasiswa: MutableStateFlow<Mahasiswa?> = MutableStateFlow(null)
     val selectedMahasiswa: StateFlow<Mahasiswa?> = _selectedMahasiswa.asStateFlow()
 

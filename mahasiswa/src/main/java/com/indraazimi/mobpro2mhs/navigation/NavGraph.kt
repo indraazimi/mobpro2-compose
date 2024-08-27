@@ -24,7 +24,7 @@ fun SetupNavGraph(navController: NavHostController, modifier: Modifier, user: Mu
         composable(
             route = Screen.Profile.route,
         ) {
-            ProfileScreen(navController = navController, user = user, modifier = modifier)
+            ProfileScreen(user = user, modifier = modifier)
         }
         composable(
             route = Screen.AddData.route,
