@@ -19,6 +19,7 @@ navigationRuntimeKtx = "2.7.7"
 navigationCompose = "2.7.7"
 kotlinCoroutines = "1.8.1"
 lifecycleRuntimeComposeAndroid = "2.8.4"
+firebaseAuthKtx = "23.0.0"
 
 
 [libraries]
@@ -46,6 +47,7 @@ androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navig
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 kotlin-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinCoroutines" }
 androidx-lifecycle-runtime-compose-android = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose-android", version.ref = "lifecycleRuntimeComposeAndroid" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
     override fun addDosen(dosen: Dosen) {
@@ -69,8 +68,8 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
                 this.id = snapshot.key ?: ""
             }
             cont.resume(dosen)
-        }.addOnFailureListener { exception ->
-            cont.resumeWithException(exception)
+        }.addOnFailureListener {
+            cont.resume(null)
         }
     }
 
@@ -125,8 +124,8 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
                 this.id = snapshot.key ?: ""
             }
             cont.resume(kelas)
-        }.addOnFailureListener { exception ->
-            cont.resumeWithException(exception)
+        }.addOnFailureListener {
+            cont.resume(null)
         }
     }
 
@@ -134,7 +133,11 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
         val listener = db.getReference(KELAS_PATH).child(kelasId).child(MAHASISWA_PATH)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val dataList = snapshot.children.mapNotNull { it.getValue(Mahasiswa::class.java) }
+                    val dataList = snapshot.children.mapNotNull {
+                        it.getValue(Mahasiswa::class.java)?.apply {
+                            this.id = it.key ?: ""
+                        }
+                    }
                     trySend(dataList)
                 }
 

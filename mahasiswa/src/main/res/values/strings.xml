@@ -1,6 +1,22 @@
 <resources>
     <string name="app_name">mahasiswa</string>
+
     <string name="login">Login</string>
-    <string name="profile_photo">Foto Profil</string>
     <string name="logout">Logout</string>
+    <string name="profile_photo">Profile Photo</string>
+
+    <string name="add_data">Add Data</string>
+    <string name="name">Name</string>
+    <string name="student_id">Student ID</string>
+    <string name="save">Save</string>
+
+    <string name="add_class">Add Class</string>
+
+    <string name="profile">Profile</string>
+
+    <string name="email">Email</string>
+
+    <string name="select_class">Select Class</string>
+
+    <string name="class_name">Class</string>
 </resources>

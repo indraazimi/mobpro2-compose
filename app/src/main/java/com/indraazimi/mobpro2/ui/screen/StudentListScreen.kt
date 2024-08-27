@@ -1,6 +1,5 @@
 package com.indraazimi.mobpro2.ui.screen
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,7 +23,7 @@ import com.indraazimi.mobpro2.viewmodels.DataViewModel
 import com.indraazimi.mobpro2utils.models.Mahasiswa
 
 @Composable
-fun StudentListScreen(navGraph: NavController, classId: String) {
+fun StudentListScreen(navGraph: NavController, classId: String, modifier: Modifier) {
     val viewModel: DataViewModel = viewModel()
     val mahasiswa by viewModel.allMahasiswa.collectAsStateWithLifecycle()
 
@@ -32,31 +32,28 @@ fun StudentListScreen(navGraph: NavController, classId: String) {
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(16.dp),
     ) {
         items(mahasiswa) {
-            ItemList(data = it) {
-                navGraph.navigate("detailStudentScreen/${it.id}")
-            }
+            ItemList(data = it)
+            HorizontalDivider()
         }
     }
 
 }
 
 @Composable
-fun ItemList(data: Mahasiswa, onClick: () -> Unit) {
+fun ItemList(data: Mahasiswa) {
     Column (
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
             .padding(16.dp),
 
         verticalArrangement = Arrangement.spacedBy(8.dp),
 
         ) {
-        Text(text = data.id, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold)
-        Text(text = data.nama, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(text = data.nama, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold)
         Text(text = data.nim, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }

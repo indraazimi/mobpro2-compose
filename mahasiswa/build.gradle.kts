@@ -63,6 +63,11 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.ui.auth.ktx)
     implementation(libs.coil.compose)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.firebase.database.ktx)
+    implementation(project(":utils"))
+    implementation(libs.androidx.lifecycle.runtime.compose.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
