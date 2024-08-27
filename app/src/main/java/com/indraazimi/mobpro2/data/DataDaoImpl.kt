@@ -6,6 +6,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.indraazimi.mobpro2.data.DataDB.Companion.DOSEN_PATH
 import com.indraazimi.mobpro2.data.DataDB.Companion.KELAS_PATH
+import com.indraazimi.mobpro2.data.DataDB.Companion.KEY_DOSEN_ID
 import com.indraazimi.mobpro2.data.DataDB.Companion.MAHASISWA_PATH
 import com.indraazimi.mobpro2utils.models.Dosen
 import com.indraazimi.mobpro2utils.models.Kelas
@@ -25,14 +26,10 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
         db.getReference(DOSEN_PATH).child(id).setValue(dosen)
     }
 
-    override fun deleteDosen(ids: List<String>) {
-        ids.forEach { db.getReference(DOSEN_PATH).child(it).removeValue() }
-    }
-
     override fun addKelas(dosenId: String, kelas: Kelas) {
         val newClass = db.getReference(KELAS_PATH).push()
 
-        val classId = newClass.key!!
+        val classId = newClass.key ?: ""
 
         newClass.setValue(kelas).addOnSuccessListener {
             db.getReference(KELAS_PATH).child(classId).child(DOSEN_PATH).child("dosenId").setValue(dosenId)
@@ -43,23 +40,8 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
         db.getReference(KELAS_PATH).child(kelasId).setValue(kelas)
     }
 
-    override fun deleteKelas(dosenId: String, kelasId: String) {
+    override fun deleteKelas(kelasId: String) {
         db.getReference(KELAS_PATH).child(kelasId).removeValue()
-        db.getReference(KELAS_PATH).child(DOSEN_PATH).child(dosenId).removeValue()
-    }
-
-    override suspend fun getAllDosen(): Flow<List<Dosen>> = callbackFlow {
-        val listener = db.getReference(DOSEN_PATH).addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val dataList = snapshot.children.mapNotNull { it.getValue(Dosen::class.java) }
-                trySend(dataList)
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                close(error.toException())
-            }
-        })
-        awaitClose { db.getReference(DOSEN_PATH).removeEventListener(listener) }
     }
 
     override suspend fun getDosenByID(id: String): Dosen? = suspendCancellableCoroutine { cont ->
@@ -73,21 +55,6 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
         }
     }
 
-    override suspend fun getAllKelas(dosenId: String): Flow<List<Kelas>> = callbackFlow {
-        val listener = db.getReference(KELAS_PATH).child(DOSEN_PATH).child(dosenId)
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val dataList = snapshot.children.mapNotNull { it.getValue(Kelas::class.java) }
-                    trySend(dataList)
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    close(error.toException())
-                }
-            })
-        awaitClose { db.getReference(KELAS_PATH).child(DOSEN_PATH).child(dosenId).removeEventListener(listener) }
-    }
-
     override suspend fun getKelasByDosenID(dosenId: String): Flow<List<Kelas>> = callbackFlow {
         val reference = db.getReference(KELAS_PATH)
 
@@ -98,7 +65,7 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
                     val kelas = dataSnapshot.getValue(Kelas::class.java)
                     kelas?.id = dataSnapshot.key ?: ""
 
-                    dataSnapshot.child(DOSEN_PATH).child("dosenId").value?.let {
+                    dataSnapshot.child(DOSEN_PATH).child(KEY_DOSEN_ID).value?.let {
                         if (it == dosenId) {
                             kelasList.add(kelas!!)
                         }

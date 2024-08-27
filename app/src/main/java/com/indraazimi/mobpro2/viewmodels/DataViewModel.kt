@@ -16,9 +16,6 @@ class DataViewModel() : ViewModel() {
 
     private val dataDao: DataDao = DataDB.getInstance().dao
 
-    private val _allDosen: MutableStateFlow<List<Dosen>> = MutableStateFlow(emptyList())
-    val allDosen: StateFlow<List<Dosen>> = _allDosen.asStateFlow()
-
     private val _selectedDosen: MutableStateFlow<Dosen?> = MutableStateFlow(null)
     val selectedDosen: StateFlow<Dosen?> = _selectedDosen.asStateFlow()
 
@@ -34,29 +31,9 @@ class DataViewModel() : ViewModel() {
     private val _loading: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            dataDao.getAllDosen().collect { dosenList ->
-                _allDosen.value = dosenList
-            }
-        }
-    }
-
     fun addDosen(dosen: Dosen) {
         viewModelScope.launch {
             dataDao.addDosen(dosen)
-        }
-    }
-
-    fun updateDosen(id: String, dosen: Dosen) {
-        viewModelScope.launch {
-            dataDao.updateDosen(id, dosen)
-        }
-    }
-
-    fun deleteDosen(ids: List<String>) {
-        viewModelScope.launch {
-            dataDao.deleteDosen(ids)
         }
     }
 
@@ -68,29 +45,9 @@ class DataViewModel() : ViewModel() {
         }
     }
 
-    fun getAllKelas(dosenId: String) {
-        viewModelScope.launch {
-            dataDao.getAllKelas(dosenId).collect { kelasList ->
-                _allKelas.value = kelasList
-            }
-        }
-    }
-
     fun addKelas(dosenId: String, kelas: Kelas) {
         viewModelScope.launch {
             dataDao.addKelas(dosenId, kelas)
-        }
-    }
-
-    fun updateKelas(dosenId: String, kelasId: String, kelas: Kelas) {
-        viewModelScope.launch {
-            dataDao.updateKelas(dosenId, kelasId, kelas)
-        }
-    }
-
-    fun deleteKelas(dosenId: String, kelasId: String) {
-        viewModelScope.launch {
-            dataDao.deleteKelas(dosenId, kelasId)
         }
     }
 

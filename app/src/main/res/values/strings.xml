@@ -12,7 +12,7 @@
 
     <string name="add_class">Add Class</string>
 
-    <string name="profile">Profile</string>
-
     <string name="email">Email</string>
+
+    <string name="your_class">Your Classes:</string>
 </resources>

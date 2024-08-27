@@ -14,7 +14,7 @@
 
     <string name="add_class">Tambah Kelas</string>
 
-    <string name="profile">Profil</string>
-
     <string name="email">Email</string>
+
+    <string name="your_class">Kelas Anda:</string>
 </resources>

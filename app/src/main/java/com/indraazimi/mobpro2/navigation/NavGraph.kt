@@ -44,7 +44,7 @@ fun SetupNavGraph(navController: NavHostController, modifier: Modifier, user: Mu
             route = Screen.StudentList.route,
             arguments = listOf(navArgument("classId") { type = NavType.StringType })
         ) {
-            StudentListScreen(navController, it.arguments?.getString("classId") ?: "", modifier)
+            StudentListScreen(it.arguments?.getString("classId") ?: "", modifier)
         }
     }
 }
