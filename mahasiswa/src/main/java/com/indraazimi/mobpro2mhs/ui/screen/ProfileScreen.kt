@@ -1,7 +1,6 @@
 package com.indraazimi.mobpro2mhs.ui.screen
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,35 +31,51 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.google.firebase.auth.FirebaseUser
 import com.indraazimi.mobpro2mhs.viewmodels.DataViewModel
-import com.indraazimi.mobpro2utils.models.Kelas
 
 @Composable
 fun ProfileScreen(user: MutableState<FirebaseUser?>, modifier: Modifier) {
     val viewModel: DataViewModel = viewModel()
+
     val mahasiswa by viewModel.selectedMahasiswa.collectAsStateWithLifecycle()
     val kelas by viewModel.selectedKelas.collectAsStateWithLifecycle()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = user.value?.uid) {
         user.value?.uid?.let { uid ->
             viewModel.getMahasiswaByID(uid)
-            viewModel.getKelasByMahasiswaID(uid)
         }
     }
 
-    Column(
-        modifier = modifier
-            .padding(16.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top,
-    ) {
-        ProfileCard(
-            photoUrl = user.value?.photoUrl.toString(),
-            name = mahasiswa?.nama ?: "",
-            nim = mahasiswa?.nim ?: "",
-            email = user.value?.email ?: "",
-            kelas = kelas?.nama ?: "",
-        )
+    LaunchedEffect(key1 = mahasiswa) {
+        mahasiswa?.id?.let { kelasId ->
+            viewModel.getKelasByMahasiswaID(kelasId)
+        }
+    }
+
+    if (loading) {
+       Box(
+           modifier = Modifier.fillMaxSize(),
+           contentAlignment = Alignment.Center
+       ) {
+           CircularProgressIndicator()
+       }
+    } else {
+
+        Column(
+            modifier = modifier
+                .padding(16.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
+        ) {
+            ProfileCard(
+                photoUrl = user.value?.photoUrl.toString(),
+                name = mahasiswa?.nama ?: "",
+                nim = mahasiswa?.nim ?: "",
+                email = user.value?.email ?: "",
+                kelas = kelas?.nama ?: "",
+            )
+        }
     }
 }
 
@@ -131,30 +146,6 @@ fun ProfileCard(
                 text = kelas,
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 14.sp
-            )
-        }
-    }
-}
-
-@Composable
-fun ClassList(kelas: Kelas, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clickable {
-                onClick()
-            },
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = kelas.nama,
-                style = MaterialTheme.typography.headlineSmall
             )
         }
     }

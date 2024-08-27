@@ -38,35 +38,38 @@ class DataViewModel() : ViewModel() {
             _loading.value = true
             dataDao.getAllKelas().collect { kelasList ->
                 _allKelas.value = kelasList
+                _loading.value = false
             }
-            _loading.value = false
         }
     }
 
     fun getMahasiswaByID(id: String) {
         viewModelScope.launch {
             _loading.value = true
-            val mahasiswa = dataDao.getMahasiswaByID(id)
-            _selectedMahasiswa.value = mahasiswa
-            _loading.value = false
+            dataDao.getMahasiswaByID(id).collect {
+                _selectedMahasiswa.value = it
+                _loading.value = false
+            }
         }
     }
 
     fun getKelasByMahasiswaID(mahasiswaId: String) {
         viewModelScope.launch {
             _loading.value = true
-            val kelas = dataDao.getKelasByMahasiswaID(mahasiswaId)
-            _selectedKelas.value = kelas
-            _loading.value = false
+            dataDao.getKelasByMahasiswaID(mahasiswaId).collect {
+                _selectedKelas.value = it
+                _loading.value = false
+            }
         }
     }
 
     fun getKelasByID(id: String) {
         viewModelScope.launch {
             _loading.value = true
-            val kelas = dataDao.getKelasByID(id)
-            _selectedKelas.value = kelas
-            _loading.value = false
+            dataDao.getKelasByID(id).collect {
+                _selectedKelas.value = it
+                _loading.value = false
+            }
         }
     }
 }

@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.Flow
 interface DataDao {
     fun addMahasiswa(kelasId: String, mahasiswa: Mahasiswa)
 
-    suspend fun getMahasiswaByID(id: String): Mahasiswa?
+    suspend fun getMahasiswaByID(id: String): Flow<Mahasiswa?>
 
-    suspend fun getKelasByID(id: String): Kelas?
+    suspend fun getKelasByID(id: String): Flow<Kelas?>
     fun getAllKelas(): Flow<List<Kelas>>
 
-    suspend fun getKelasByMahasiswaID(mahasiswaId: String): Kelas?
+    suspend fun getKelasByMahasiswaID(mahasiswaId: String): Flow<Kelas?>
 }

@@ -71,7 +71,9 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
 
                     dataSnapshot.child(DOSEN_PATH).child(KEY_DOSEN_ID).value?.let {
                         if (it == dosenId) {
-                            kelasList.add(kelas!!)
+                            kelasList.add(kelas?.apply {
+                                this.id = dataSnapshot.key ?: ""
+                            } ?: Kelas())
                         }
                     }
 

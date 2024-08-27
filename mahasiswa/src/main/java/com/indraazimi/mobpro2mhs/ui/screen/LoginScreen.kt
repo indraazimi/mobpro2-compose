@@ -39,7 +39,6 @@ fun LoginScreen(modifier: Modifier = Modifier, user: MutableState<FirebaseUser?>
     val dataViewModel: DataViewModel = viewModel()
 
     val mahasiswa by dataViewModel.selectedMahasiswa.collectAsStateWithLifecycle()
-
     val loading by dataViewModel.loading.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = user.value?.uid) {
