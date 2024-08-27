@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,40 +48,63 @@ fun ProfileScreen(navController: NavController, user: MutableState<FirebaseUser?
     val viewModel: DataViewModel = viewModel()
     val dosen by viewModel.selectedDosen.collectAsStateWithLifecycle()
     val kelas by viewModel.allKelas.collectAsStateWithLifecycle()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = user.value?.uid) {
         user.value?.uid?.let { uid ->
             viewModel.getDosenByID(uid)
-            viewModel.getKelasByDosenID(uid)
         }
     }
 
-    Column(
-        modifier = modifier
-            .padding(16.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top,
-    ) {
-        ProfileCard(photoUrl = user.value?.photoUrl.toString(), name = dosen?.nama ?: "", lecturerCode = dosen?.kodeDosen ?: "", email = user.value?.email ?: "")
+    LaunchedEffect(key1 = dosen) {
+        dosen?.id?.let { id ->
+            viewModel.getKelasByDosenID(id)
+        }
+    }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = stringResource(id = R.string.your_class),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 16.dp),
+    if (loading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
         ) {
-            items(kelas) {
-                ClassList(kelas = it) {
-                    navController.navigate(Screen.StudentList.withClassID(it.id))
+            CircularProgressIndicator()
+        }
+    } else {
+
+        Column(
+            modifier = modifier
+                .padding(16.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
+        ) {
+            ProfileCard(
+                photoUrl = user.value?.photoUrl.toString(),
+                name = dosen?.nama ?: "",
+                lecturerCode = dosen?.kodeDosen ?: "",
+                email = user.value?.email ?: ""
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = stringResource(id = R.string.your_class),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 16.dp),
+            ) {
+                items(kelas) {
+                    ClassList(kelas = it) {
+                        navController.navigate(Screen.StudentList.withClassID(it.id))
+                    }
                 }
             }
         }

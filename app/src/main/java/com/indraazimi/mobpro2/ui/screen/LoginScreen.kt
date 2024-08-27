@@ -39,7 +39,6 @@ fun LoginScreen(modifier: Modifier = Modifier, user: MutableState<FirebaseUser?>
     val dataViewModel: DataViewModel = viewModel()
 
     val dosen by dataViewModel.selectedDosen.collectAsStateWithLifecycle()
-
     val loading by dataViewModel.loading.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = user.value?.uid) {
@@ -48,7 +47,7 @@ fun LoginScreen(modifier: Modifier = Modifier, user: MutableState<FirebaseUser?>
         }
     }
 
-    LaunchedEffect (key1 = loading) {
+    LaunchedEffect(key1 = loading) {
         if (loading == false) {
             if (dosen == null && user.value != null) {
                 navController.navigate(Screen.AddData.route)

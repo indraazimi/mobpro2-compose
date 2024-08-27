@@ -14,8 +14,6 @@ import com.indraazimi.mobpro2utils.models.Mahasiswa
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 
 class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
     override fun addDosen(dosen: Dosen) {
@@ -44,15 +42,21 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
         db.getReference(KELAS_PATH).child(kelasId).removeValue()
     }
 
-    override suspend fun getDosenByID(id: String): Dosen? = suspendCancellableCoroutine { cont ->
-        db.getReference(DOSEN_PATH).child(id).get().addOnSuccessListener { snapshot ->
-            val dosen = snapshot.getValue(Dosen::class.java)?.apply {
-                this.id = snapshot.key ?: ""
-            }
-            cont.resume(dosen)
-        }.addOnFailureListener {
-            cont.resume(null)
-        }
+    override suspend fun getDosenByID(id: String): Flow<Dosen?> = callbackFlow {
+        val listener = db.getReference(DOSEN_PATH).child(id)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val dosen = snapshot.getValue(Dosen::class.java)?.apply {
+                        this.id = snapshot.key ?: ""
+                    }
+                    trySend(dosen)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    close(error.toException())
+                }
+            })
+        awaitClose { db.getReference(DOSEN_PATH).child(id).removeEventListener(listener) }
     }
 
     override suspend fun getKelasByDosenID(dosenId: String): Flow<List<Kelas>> = callbackFlow {
@@ -85,15 +89,21 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
         awaitClose { reference.removeEventListener(listener) }
     }
 
-    override suspend fun getKelasByID(kelasId: String): Kelas? = suspendCancellableCoroutine { cont ->
-        db.getReference(KELAS_PATH).child(kelasId).get().addOnSuccessListener { snapshot ->
-            val kelas = snapshot.getValue(Kelas::class.java)?.apply {
-                this.id = snapshot.key ?: ""
-            }
-            cont.resume(kelas)
-        }.addOnFailureListener {
-            cont.resume(null)
-        }
+    override suspend fun getKelasByID(kelasId: String): Flow<Kelas?> = callbackFlow {
+        val listener = db.getReference(KELAS_PATH).child(kelasId)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val kelas = snapshot.getValue(Kelas::class.java)?.apply {
+                        this.id = snapshot.key ?: ""
+                    }
+                    trySend(kelas)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    close(error.toException())
+                }
+            })
+        awaitClose { db.getReference(KELAS_PATH).child(kelasId).removeEventListener(listener) }
     }
 
     override suspend fun getMahasiswaByKelasID(kelasId: String): Flow<List<Mahasiswa>> = callbackFlow {

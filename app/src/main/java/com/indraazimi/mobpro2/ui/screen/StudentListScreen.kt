@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,34 +29,50 @@ fun StudentListScreen(classId: String, modifier: Modifier) {
     val viewModel: DataViewModel = viewModel()
     val mahasiswa by viewModel.allMahasiswa.collectAsStateWithLifecycle()
     val kelas by viewModel.selectedKelas.collectAsStateWithLifecycle()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = Unit) {
-        viewModel.getMahasiswaByKelasID(classId)
+    LaunchedEffect(key1 = classId) {
         viewModel.getKelasByID(classId)
     }
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Top
-    ) {
+    LaunchedEffect(key1 = kelas) {
+        kelas?.id?.let { id ->
+            viewModel.getMahasiswaByKelasID(id)
+        }
+    }
+
+    if (loading) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = kelas?.nama ?: "",
-                fontWeight = FontWeight.Bold
-            )
+            CircularProgressIndicator()
         }
+    } else {
 
-        LazyColumn(
-            contentPadding = PaddingValues(8.dp),
+        Column(
+            modifier = modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.Top
         ) {
-            items(mahasiswa) {
-                ItemList(data = it)
-                HorizontalDivider()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = kelas?.nama ?: "",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            LazyColumn(
+                contentPadding = PaddingValues(8.dp),
+            ) {
+                items(mahasiswa) {
+                    ItemList(data = it)
+                    HorizontalDivider()
+                }
             }
         }
     }

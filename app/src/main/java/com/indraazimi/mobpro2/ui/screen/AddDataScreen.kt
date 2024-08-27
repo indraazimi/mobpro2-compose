@@ -46,16 +46,26 @@ fun AddDataScreen(navController: NavController, user: MutableState<FirebaseUser?
 
         OutlinedTextField(
             value = nameData,
-            onValueChange = { nameData = it },
-            label = { Text(stringResource(id = R.string.name)) }
+            onValueChange = {
+                if (it.length <= 25) {
+                    nameData = it
+                }
+            },
+            label = { Text(stringResource(id = R.string.name)) },
+            maxLines = 1,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = kodeDosenData,
-            onValueChange = { kodeDosenData = it },
-            label = { Text(stringResource(id = R.string.lecturer_code)) }
+            onValueChange = {
+                if (it.length <= 3 && it.uppercase() == it) {
+                    kodeDosenData = it
+                }
+            },
+            label = { Text(stringResource(id = R.string.lecturer_code)) },
+            maxLines = 1,
         )
 
         Spacer(modifier = Modifier.weight(1f))

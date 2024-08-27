@@ -50,8 +50,13 @@ fun AddClassScreen(navController: NavController, user: MutableState<FirebaseUser
 
         OutlinedTextField(
             value = nameData,
-            onValueChange = { nameData = it },
-            label = { Text(stringResource(id = R.string.name)) }
+            onValueChange = {
+                if (it.length <= 25) {
+                    nameData = it
+                }
+            },
+            label = { Text(stringResource(id = R.string.name)) },
+            maxLines = 1,
         )
 
         Spacer(modifier = Modifier.weight(1f))
