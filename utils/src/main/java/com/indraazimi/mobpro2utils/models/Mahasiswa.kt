@@ -7,4 +7,5 @@ data class Mahasiswa(
     var id: String = "",
     val nama: String = "",
     val nim: String = "",
+    val fotoProfilUri: String = "",
 )

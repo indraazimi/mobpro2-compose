@@ -69,7 +69,7 @@ fun ProfileScreen(user: MutableState<FirebaseUser?>, modifier: Modifier) {
             verticalArrangement = Arrangement.Top,
         ) {
             ProfileCard(
-                photoUrl = user.value?.photoUrl.toString(),
+                photoUrl = mahasiswa?.fotoProfilUri ?: "",
                 name = mahasiswa?.nama ?: "",
                 nim = mahasiswa?.nim ?: "",
                 email = user.value?.email ?: "",

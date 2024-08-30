@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface DataDao {
     fun addDosen(dosen: Dosen)
-    fun updateDosen(id: String, dosen: Dosen)
 
     fun addKelas(dosenId: String, kelas: Kelas)
     fun updateKelas(dosenId: String, kelasId: String, kelas: Kelas)

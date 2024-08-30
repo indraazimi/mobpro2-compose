@@ -69,6 +69,16 @@ dependencies {
     implementation(project(":utils"))
     implementation(libs.androidx.lifecycle.runtime.compose.android)
 
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+
+    implementation(libs.google.accompanist.permissions)
+
+    implementation(libs.google.mlkit.face.detection)
+
+    implementation(libs.firebase.storage.ktx)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

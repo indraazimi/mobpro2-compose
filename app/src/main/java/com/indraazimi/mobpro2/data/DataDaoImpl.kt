@@ -20,10 +20,6 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
         db.getReference(DOSEN_PATH).child(dosen.id).setValue(dosen)
     }
 
-    override fun updateDosen(id: String, dosen: Dosen) {
-        db.getReference(DOSEN_PATH).child(id).setValue(dosen)
-    }
-
     override fun addKelas(dosenId: String, kelas: Kelas) {
         val newClass = db.getReference(KELAS_PATH).push()
 

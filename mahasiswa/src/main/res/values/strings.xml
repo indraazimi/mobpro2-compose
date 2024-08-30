@@ -19,4 +19,14 @@
     <string name="select_class">Select Class</string>
 
     <string name="class_name">Class</string>
+
+    <string name="camera_permission_denied">Camera permission denied</string>
+
+    <string name="open_camera">Open Camera</string>
+
+    <string name="retake_photo">Retake Photo</string>
+
+    <string name="capture_photo">Capture Photo</string>
+
+    <string name="close_camera">Close Camera</string>
 </resources>

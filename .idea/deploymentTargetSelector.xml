@@ -15,6 +15,14 @@
       </SelectionState>
       <SelectionState runConfigName="mahasiswa">
         <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2024-08-30T15:50:51.125866Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=092262529U104734" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
       </SelectionState>
     </selectionStates>
   </component>

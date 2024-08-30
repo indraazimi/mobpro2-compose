@@ -21,4 +21,14 @@
     <string name="select_class">Pilih Kelas</string>
 
     <string name="class_name">Kelas</string>
+
+    <string name="camera_permission_denied">Izin kamera ditolak</string>
+
+    <string name="open_camera">Buka Kamera</string>
+
+    <string name="retake_photo">Ambil Ulang Foto</string>
+
+    <string name="capture_photo">Ambil Foto</string>
+
+    <string name="close_camera">Tutup Kamera</string>
 </resources>
