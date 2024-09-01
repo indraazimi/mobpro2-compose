@@ -122,4 +122,10 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
             })
         awaitClose { db.getReference(KELAS_PATH).child(kelasId).child(MAHASISWA_PATH).removeEventListener(listener) }
     }
+
+    override fun deleteSelectedMahasiswa(kelasId: String, mahasiswa: List<Mahasiswa>) {
+        mahasiswa.forEach {
+            db.getReference(KELAS_PATH).child(kelasId).child(MAHASISWA_PATH).child(it.id).removeValue()
+        }
+    }
 }

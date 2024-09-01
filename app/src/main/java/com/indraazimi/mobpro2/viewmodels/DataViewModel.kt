@@ -86,4 +86,12 @@ class DataViewModel() : ViewModel() {
             }
         }
     }
+
+    fun deleteSelectedStudents(mahasiswa: List<Mahasiswa>) {
+        viewModelScope.launch {
+            _loading.value = true
+            dataDao.deleteSelectedMahasiswa(selectedKelas.value?.id ?: "", mahasiswa)
+            _loading.value = false
+        }
+    }
 }

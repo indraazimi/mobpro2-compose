@@ -17,4 +17,10 @@
     <string name="email">Email</string>
 
     <string name="your_class">Kelas Anda:</string>
+
+    <string name="cancel">Batal</string>
+
+    <string name="delete">Hapus</string>
+
+    <string name="student_delete_confirmation">Apakah Anda yakin ingin menghapus mahasiswa yang dipilih?</string>
 </resources>

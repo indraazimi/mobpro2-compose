@@ -15,4 +15,10 @@
     <string name="email">Email</string>
 
     <string name="your_class">Your Classes:</string>
+
+    <string name="cancel">Cancel</string>
+
+    <string name="delete">Delete</string>
+
+    <string name="student_delete_confirmation">Are you sure you want to delete selected students?</string>
 </resources>

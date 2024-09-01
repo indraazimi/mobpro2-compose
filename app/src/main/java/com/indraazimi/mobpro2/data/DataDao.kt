@@ -18,4 +18,6 @@ interface DataDao {
     suspend fun getKelasByDosenID(dosenId: String): Flow<List<Kelas>>
 
     suspend fun getMahasiswaByKelasID(kelasId: String): Flow<List<Mahasiswa>>
+
+    fun deleteSelectedMahasiswa(kelasId: String, mahasiswa: List<Mahasiswa>)
 }
