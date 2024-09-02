@@ -21,6 +21,7 @@ cameraX = "1.3.4"
 googleAccompanist = "0.19.0"
 googleMlKit = "16.1.7"
 firebaseStorageKtx = "21.0.0"
+osmdroid = "6.1.13"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -51,6 +52,7 @@ androidx-camera-view = { group = "androidx.camera", name = "camera-view", versio
 google-accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "googleAccompanist" }
 google-mlkit-face-detection = { module = "com.google.mlkit:face-detection", version.ref = "googleMlKit" }
 firebase-storage-ktx = { module = "com.google.firebase:firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
+osmdroid-android = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -3,9 +3,11 @@ package com.indraazimi.mobpro2mhs.ui.screen
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,6 +22,8 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +33,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Face
@@ -42,6 +49,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -51,6 +59,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.consumeAllChanges
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -70,6 +80,12 @@ import com.indraazimi.mobpro2mhs.R
 import com.indraazimi.mobpro2mhs.navigation.Screen
 import com.indraazimi.mobpro2mhs.viewmodels.DataViewModel
 import com.indraazimi.mobpro2utils.models.Mahasiswa
+import org.osmdroid.api.IGeoPoint
+import org.osmdroid.config.Configuration
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.CustomZoomButtonsController
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -108,6 +124,8 @@ fun AddDataScreen(
     var isCameraOpen by remember { mutableStateOf(false) }
     var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
 
+    val position = remember { mutableStateOf<GeoPoint?>(null) }
+
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -143,7 +161,9 @@ fun AddDataScreen(
                 id = user.value?.uid ?: "",
                 nama = nameData,
                 nim = nimData,
-                fotoProfilUri = imageUri.toString()
+                fotoProfilUri = imageUri.toString(),
+                latitude = position.value?.latitude ?: 0.0,
+                longitude = position.value?.longitude ?: 0.0
             )
 
             dataViewModel.addMahasiswa(selectedClassId, newMahasiswa)
@@ -155,7 +175,8 @@ fun AddDataScreen(
     Column(
         modifier = modifier
             .padding(16.dp)
-            .fillMaxSize(),
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -250,6 +271,15 @@ fun AddDataScreen(
                 Text(if (capturedImageUri == null) stringResource(id = R.string.open_camera) else stringResource(id = R.string.retake_photo))
             }
         }
+
+        OsmMapView(modifier = modifier.width(
+            if (isCameraOpen) 0.dp else 300.dp
+        ).height(
+            if (isCameraOpen) 0.dp else 300.dp
+        ), pos = position)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Button(
             onClick = {
                 dataViewModel.uploadImage(capturedImageUri, context)
@@ -412,4 +442,93 @@ fun ImagePreview(uri: Uri) {
         contentDescription = null,
         modifier = Modifier.size(200.dp)
     )
+}
+
+@Composable
+fun OsmMapView(modifier: Modifier = Modifier, pos: MutableState<GeoPoint?>) {
+    val context = LocalContext.current
+
+    Configuration.getInstance().load(context, context.getSharedPreferences("osm", MODE_PRIVATE))
+
+    val mapView = remember {
+        MapView(context).apply {
+            setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
+            setMultiTouchControls(true)
+            controller.setZoom(15.0)
+            controller.setCenter(GeoPoint(-6.914744, 107.609810))
+        }
+    }
+
+    val currentMarker = remember { mutableStateOf<Marker?>(null) }
+
+    fun addOrMoveMarker(geoPoint: IGeoPoint) {
+        currentMarker.value?.let { existingMarker ->
+            existingMarker.position = geoPoint as GeoPoint
+            mapView.invalidate()
+        } ?: run {
+            val marker = Marker(mapView).apply {
+                position = geoPoint as GeoPoint
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                pos.value = geoPoint
+            }
+            mapView.overlays.add(marker)
+            currentMarker.value = marker
+            mapView.invalidate()
+        }
+    }
+
+    fun removeMarker() {
+        currentMarker.value?.let { marker ->
+            mapView.overlays.remove(marker)
+            currentMarker.value = null
+            mapView.invalidate()
+        }
+    }
+
+    mapView.setOnTouchListener { _, motionEvent ->
+        if (motionEvent.action == MotionEvent.ACTION_UP) {
+            val existingMarker = currentMarker.value
+
+            if (existingMarker != null) {
+                val existingGeoPoint = existingMarker.position
+                val markerPositionInPixels = mapView.projection.toPixels(existingGeoPoint, null)
+                val newGeoPoint = mapView.projection.fromPixels(motionEvent.x.toInt(), motionEvent.y.toInt())
+                val newMarkerPositionInPixels = mapView.projection.toPixels(newGeoPoint, null)
+                if (Math.abs(markerPositionInPixels.x - newMarkerPositionInPixels.x) < 10 && Math.abs(markerPositionInPixels.y - newMarkerPositionInPixels.y) < 10) {
+                    removeMarker()
+                } else {
+                    addOrMoveMarker(newGeoPoint)
+                }
+            } else {
+                addOrMoveMarker(mapView.projection.fromPixels(motionEvent.x.toInt(), motionEvent.y.toInt()))
+            }
+        }
+        mapView.performClick()
+    }
+
+    AndroidView(
+        factory = { mapView },
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectDragGestures { change, dragAmount ->
+                    change.consume()
+                    val newCenter = mapView.projection.fromPixels(
+                        mapView.width / 2 - dragAmount.x.toInt(),
+                        mapView.height / 2 - dragAmount.y.toInt()
+                    )
+
+                    mapView.controller.setCenter(newCenter)
+                    mapView.zoomController.setZoomInEnabled(true)
+                    mapView.zoomController.setZoomOutEnabled(true)
+                    mapView.zoomController.setVisibility(CustomZoomButtonsController.Visibility.ALWAYS)
+                }
+            }
+    )
+
+    DisposableEffect(Unit) {
+        onDispose {
+            Configuration.getInstance().save(context, context.getSharedPreferences("osm", MODE_PRIVATE))
+            mapView.onDetach()
+        }
+    }
 }
