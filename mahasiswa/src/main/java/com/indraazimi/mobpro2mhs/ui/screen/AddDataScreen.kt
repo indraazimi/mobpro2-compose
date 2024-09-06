@@ -3,6 +3,7 @@ package com.indraazimi.mobpro2mhs.ui.screen
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -24,11 +25,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Face
@@ -71,12 +73,14 @@ import com.indraazimi.mobpro2mhs.navigation.Screen
 import com.indraazimi.mobpro2mhs.viewmodels.DataViewModel
 import com.indraazimi.mobpro2utils.models.Mahasiswa
 import java.io.File
+import java.io.FileOutputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 const val PROFILE_PHOTO_PATH = "mahasiswa/profile_photo"
 const val FILE_DIR = "images"
 const val TEMP_PHOTO_FILE_NAME = "temp_photo.jpg"
+const val CROPPED_PHOTO_FILE_NAME = "cropped_photo.jpg"
 
 @RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
@@ -250,6 +254,7 @@ fun AddDataScreen(
                 Text(if (capturedImageUri == null) stringResource(id = R.string.open_camera) else stringResource(id = R.string.retake_photo))
             }
         }
+
         Button(
             onClick = {
                 dataViewModel.uploadImage(capturedImageUri, context)
@@ -277,6 +282,7 @@ fun CameraPreviewView(
 
     val previewView = remember { PreviewView(context) }
     var imageCapture: ImageCapture? by remember { mutableStateOf(null) }
+    var isLoading by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = cameraProviderFuture) {
         val cameraProvider = cameraProviderFuture.get()
@@ -301,7 +307,6 @@ fun CameraPreviewView(
                     processImageProxy(imageProxy, faceDetector, onFaceDetected, onFaceNotDetected)
                 }
             }
-
         try {
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(
@@ -314,34 +319,39 @@ fun CameraPreviewView(
 
     Box(
         contentAlignment = Alignment.TopCenter,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        } else {
+            AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
 
-        if (isFaceDetected) {
+            if (isFaceDetected) {
+                Button(
+                    onClick = {
+                        imageCapture?.let {
+                            isLoading = true
+                            captureImage(context, it) { uri ->
+                                onImageCaptured(uri)
+                                onCloseCamera()
+                                isLoading = false
+                            }
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                ) {
+                    Icon(Icons.Default.Face, contentDescription = stringResource(id = R.string.capture_photo))
+                }
+            }
+
             Button(
                 onClick = {
-                    imageCapture?.let {
-                        captureImage(context, it) { uri ->
-                            onImageCaptured(uri)
-                        }
-                    }
+                    onCloseCamera()
                 },
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier.align(Alignment.BottomEnd)
             ) {
-                Icon(Icons.Default.Face, contentDescription = stringResource(id = R.string.capture_photo))
+                Icon(Icons.Filled.Close, contentDescription = stringResource(id = R.string.close_camera))
             }
-        }
-
-        Button(
-            onClick = {
-                onCloseCamera()
-            },
-            modifier = Modifier.align(Alignment.BottomEnd)
-        ) {
-            Icon(Icons.Filled.Close, contentDescription = stringResource(id = R.string.close_camera))
         }
     }
 }
@@ -367,7 +377,11 @@ fun captureImage(
             }
 
             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                onImageCaptured(Uri.fromFile(photoFile))
+                val imageUri = Uri.fromFile(photoFile)
+
+                detectAndCropFace(context, imageUri) { croppedUri ->
+                    onImageCaptured(croppedUri)
+                }
             }
         }
     )
@@ -401,15 +415,76 @@ fun processImageProxy(
 }
 
 @RequiresApi(Build.VERSION_CODES.P)
+fun detectAndCropFace(context: Context, uri: Uri, onCropped: (Uri) -> Unit) {
+    val source = ImageDecoder.createSource(context.contentResolver, uri)
+    val bitmap = ImageDecoder.decodeBitmap(source)
+
+    val image = InputImage.fromBitmap(bitmap, 0)
+
+    val options = FaceDetectorOptions.Builder()
+        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+        .build()
+
+    val detector = FaceDetection.getClient(options)
+
+    detector.process(image)
+        .addOnSuccessListener { faces ->
+            if (faces.isNotEmpty()) {
+                val face = faces[0]
+                val bounds = face.boundingBox
+
+                val faceWidth = bounds.width()
+                val faceHeight = bounds.height()
+                val size = maxOf(faceWidth, faceHeight)
+
+                val centerX = bounds.centerX()
+                val centerY = bounds.centerY()
+
+                val left = (centerX - size / 2).coerceAtLeast(0)
+                val top = (centerY - size / 2).coerceAtLeast(0)
+                val right = (centerX + size / 2).coerceAtMost(bitmap.width)
+                val bottom = (centerY + size / 2).coerceAtMost(bitmap.height)
+
+                val croppedBitmap = Bitmap.createBitmap(
+                    bitmap,
+                    left,
+                    top,
+                    right - left,
+                    bottom - top
+                )
+
+                val croppedFile = File(context.getExternalFilesDir(null), CROPPED_PHOTO_FILE_NAME)
+                FileOutputStream(croppedFile).use { out ->
+                    croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+                }
+
+                onCropped(Uri.fromFile(croppedFile))
+            } else {
+                onCropped(uri)
+            }
+        }
+        .addOnFailureListener {
+            it.printStackTrace()
+            onCropped(uri)
+        }
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun ImagePreview(uri: Uri) {
     val context = LocalContext.current
     val bitmap = remember(uri) {
-        ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, uri))
+        val source = ImageDecoder.createSource(context.contentResolver, uri)
+        ImageDecoder.decodeBitmap(source)
     }
+
     Image(
         bitmap = bitmap.asImageBitmap(),
         contentDescription = null,
-        modifier = Modifier.size(200.dp)
+        modifier = Modifier
+            .width(200.dp)
+            .height(200.dp)
+            .aspectRatio(1f)
+
     )
 }
