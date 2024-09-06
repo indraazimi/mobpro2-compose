@@ -73,7 +73,6 @@ fun ProfileScreen(user: MutableState<FirebaseUser?>, modifier: Modifier) {
            CircularProgressIndicator()
        }
     } else {
-
         Column(
             modifier = modifier
                 .padding(16.dp)
@@ -87,6 +86,7 @@ fun ProfileScreen(user: MutableState<FirebaseUser?>, modifier: Modifier) {
                 nim = mahasiswa?.nim ?: "",
                 email = user.value?.email ?: "",
                 kelas = kelas?.nama ?: "",
+                address = mahasiswa?.address ?: ""
             )
 
             mahasiswa?.let {
@@ -106,6 +106,7 @@ fun ProfileCard(
     nim: String,
     email: String,
     kelas: String,
+    address: String,
 ) {
     Row(
         modifier = Modifier
@@ -164,6 +165,11 @@ fun ProfileCard(
             )
             Text(
                 text = kelas,
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 14.sp
+            )
+            Text(
+                text = address,
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 14.sp
             )
