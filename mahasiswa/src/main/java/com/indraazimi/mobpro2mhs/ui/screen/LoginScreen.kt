@@ -48,7 +48,7 @@ fun LoginScreen(modifier: Modifier = Modifier, user: MutableState<FirebaseUser?>
     }
 
     LaunchedEffect (key1 = loading) {
-        if (loading == false) {
+        if (!loading) {
             if (mahasiswa == null && user.value != null) {
                 navController.navigate(Screen.AddData.route)
             }

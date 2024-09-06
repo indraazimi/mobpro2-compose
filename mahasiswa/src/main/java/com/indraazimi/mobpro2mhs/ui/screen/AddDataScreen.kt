@@ -433,9 +433,12 @@ fun detectAndCropFace(context: Context, uri: Uri, onCropped: (Uri) -> Unit) {
                 val face = faces[0]
                 val bounds = face.boundingBox
 
+                val paddingFactor = 0.4f
+
                 val faceWidth = bounds.width()
                 val faceHeight = bounds.height()
-                val size = maxOf(faceWidth, faceHeight)
+
+                val size = (maxOf(faceWidth, faceHeight) * (1 + paddingFactor)).toInt()
 
                 val centerX = bounds.centerX()
                 val centerY = bounds.centerY()
@@ -445,12 +448,15 @@ fun detectAndCropFace(context: Context, uri: Uri, onCropped: (Uri) -> Unit) {
                 val right = (centerX + size / 2).coerceAtMost(bitmap.width)
                 val bottom = (centerY + size / 2).coerceAtMost(bitmap.height)
 
+                val cropWidth = right - left
+                val cropHeight = bottom - top
+
                 val croppedBitmap = Bitmap.createBitmap(
                     bitmap,
                     left,
                     top,
-                    right - left,
-                    bottom - top
+                    cropWidth,
+                    cropHeight
                 )
 
                 val croppedFile = File(context.getExternalFilesDir(null), CROPPED_PHOTO_FILE_NAME)
