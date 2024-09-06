@@ -1,7 +1,6 @@
 package com.indraazimi.mobpro2mhs.ui.screen
 
 import android.content.Context.MODE_PRIVATE
-import android.view.MotionEvent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

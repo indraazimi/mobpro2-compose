@@ -9,5 +9,6 @@ data class Mahasiswa(
     val nim: String = "",
     val fotoProfilUri: String = "",
     val latitude: Double = 0.0,
-    val longitude: Double = 0.0
+    val longitude: Double = 0.0,
+    val address: String = "",
 )

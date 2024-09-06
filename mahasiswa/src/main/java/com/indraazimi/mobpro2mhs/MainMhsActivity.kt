@@ -40,6 +40,9 @@ class MainMhsActivity : ComponentActivity() {
             val navController = rememberNavController()
             val user = remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
             var showMenu by remember { mutableStateOf(false) }
+            val address = remember { mutableStateOf("") }
+            val lat = remember { mutableStateOf<Double?>(null) }
+            val lon = remember { mutableStateOf<Double?>(null) }
 
             Mobpro2Theme {
                 Scaffold(
@@ -83,7 +86,14 @@ class MainMhsActivity : ComponentActivity() {
                         )
                     },
                 ) { paddingValues ->
-                    SetupNavGraph(navController = navController, user = user, modifier = Modifier.padding(paddingValues))
+                    SetupNavGraph(
+                        navController = navController,
+                        user = user,
+                        modifier = Modifier.padding(paddingValues),
+                        lat = lat,
+                        lon = lon,
+                        address = address,
+                    )
                 }
             }
         }

@@ -10,11 +10,19 @@ import androidx.navigation.compose.composable
 import com.google.firebase.auth.FirebaseUser
 import com.indraazimi.mobpro2mhs.ui.screen.AddDataScreen
 import com.indraazimi.mobpro2mhs.ui.screen.LoginScreen
+import com.indraazimi.mobpro2mhs.ui.screen.MapScreen
 import com.indraazimi.mobpro2mhs.ui.screen.ProfileScreen
 
 @SuppressLint("NewApi")
 @Composable
-fun SetupNavGraph(navController: NavHostController, modifier: Modifier, user: MutableState<FirebaseUser?>) {
+fun SetupNavGraph(
+    navController: NavHostController,
+    modifier: Modifier,
+    user: MutableState<FirebaseUser?>,
+    lat: MutableState<Double?>,
+    lon: MutableState<Double?>,
+    address: MutableState<String>
+) {
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(
             route = Screen.Login.route,
@@ -29,7 +37,12 @@ fun SetupNavGraph(navController: NavHostController, modifier: Modifier, user: Mu
         composable(
             route = Screen.AddData.route,
         ) {
-            AddDataScreen(navController = navController, user = user, modifier = modifier)
+            AddDataScreen(navController = navController, user = user, modifier = modifier, lat = lat, lon = lon, address = address)
+        }
+        composable(
+            route = Screen.Map.route,
+        ) {
+            MapScreen(navController = navController, lat = lat, lon = lon, address = address, modifier = modifier)
         }
     }
 }

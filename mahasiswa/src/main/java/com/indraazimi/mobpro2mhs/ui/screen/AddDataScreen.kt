@@ -3,11 +3,10 @@ package com.indraazimi.mobpro2mhs.ui.screen
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
+import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
-import android.view.MotionEvent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,17 +21,15 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -49,22 +46,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.pointer.consumeAllChanges
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -80,19 +76,15 @@ import com.indraazimi.mobpro2mhs.R
 import com.indraazimi.mobpro2mhs.navigation.Screen
 import com.indraazimi.mobpro2mhs.viewmodels.DataViewModel
 import com.indraazimi.mobpro2utils.models.Mahasiswa
-import org.osmdroid.api.IGeoPoint
-import org.osmdroid.config.Configuration
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.CustomZoomButtonsController
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 import java.io.File
+import java.io.FileOutputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 const val PROFILE_PHOTO_PATH = "mahasiswa/profile_photo"
 const val FILE_DIR = "images"
 const val TEMP_PHOTO_FILE_NAME = "temp_photo.jpg"
+const val CROPPED_PHOTO_FILE_NAME = "cropped_photo.jpg"
 
 @RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
@@ -100,7 +92,10 @@ const val TEMP_PHOTO_FILE_NAME = "temp_photo.jpg"
 fun AddDataScreen(
     navController: NavController,
     user: MutableState<FirebaseUser?>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    lat: MutableState<Double?>,
+    lon: MutableState<Double?>,
+    address: MutableState<String>
 ) {
     val dataViewModel: DataViewModel = viewModel()
 
@@ -114,17 +109,15 @@ fun AddDataScreen(
 
     val imageUri by dataViewModel.imageUri.collectAsStateWithLifecycle()
 
-    var selectedClassId by remember { mutableStateOf("") }
-    var nameData by remember { mutableStateOf("") }
-    var nimData by remember { mutableStateOf("") }
+    var selectedClassId by rememberSaveable { mutableStateOf("") }
+    var nameData by rememberSaveable { mutableStateOf("") }
+    var nimData by rememberSaveable { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-    var selectedClassName by remember { mutableStateOf("") }
+    var selectedClassName by rememberSaveable { mutableStateOf("") }
 
     var isFaceDetected by remember { mutableStateOf(false) }
     var isCameraOpen by remember { mutableStateOf(false) }
-    var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
-
-    val position = remember { mutableStateOf<GeoPoint?>(null) }
+    var capturedImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
 
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -148,7 +141,9 @@ fun AddDataScreen(
 
     if (loading) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(1f),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator()
@@ -162,8 +157,9 @@ fun AddDataScreen(
                 nama = nameData,
                 nim = nimData,
                 fotoProfilUri = imageUri.toString(),
-                latitude = position.value?.latitude ?: 0.0,
-                longitude = position.value?.longitude ?: 0.0
+                latitude = lat.value ?: 0.0,
+                longitude = lon.value ?: 0.0,
+                address = address.value
             )
 
             dataViewModel.addMahasiswa(selectedClassId, newMahasiswa)
@@ -272,11 +268,29 @@ fun AddDataScreen(
             }
         }
 
-        OsmMapView(modifier = modifier.width(
-            if (isCameraOpen) 0.dp else 300.dp
-        ).height(
-            if (isCameraOpen) 0.dp else 300.dp
-        ), pos = position)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                navController.navigate(Screen.Map.route)
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text(stringResource(id = R.string.select_location))
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (lat.value != null && lon.value != null && address.value.isNotEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(text = "${stringResource(id = R.string.address)} : ${address.value}")
+                Text(text = "${stringResource(id = R.string.latitude)} : ${lat.value}")
+                Text(text = "${stringResource(id = R.string.longitude)} : ${lon.value}")
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -285,7 +299,15 @@ fun AddDataScreen(
                 dataViewModel.uploadImage(capturedImageUri, context)
             },
             modifier = Modifier.align(Alignment.End),
-            enabled = (nameData.isNotEmpty() && nimData.isNotEmpty() && selectedClassId.isNotEmpty() && capturedImageUri != null)
+            enabled = (
+                nameData.isNotEmpty() &&
+                nimData.isNotEmpty() &&
+                selectedClassId.isNotEmpty() &&
+                capturedImageUri != null &&
+                lat.value != null &&
+                lon.value != null &&
+                address.value.isNotEmpty()
+            )
         ) {
             Text(stringResource(id = R.string.save))
         }
@@ -307,6 +329,7 @@ fun CameraPreviewView(
 
     val previewView = remember { PreviewView(context) }
     var imageCapture: ImageCapture? by remember { mutableStateOf(null) }
+    var isLoading by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = cameraProviderFuture) {
         val cameraProvider = cameraProviderFuture.get()
@@ -331,7 +354,6 @@ fun CameraPreviewView(
                     processImageProxy(imageProxy, faceDetector, onFaceDetected, onFaceNotDetected)
                 }
             }
-
         try {
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(
@@ -348,30 +370,37 @@ fun CameraPreviewView(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        } else {
+            AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
 
-        if (isFaceDetected) {
+            if (isFaceDetected) {
+                Button(
+                    onClick = {
+                        imageCapture?.let {
+                            isLoading = true
+                            captureImage(context, it) { uri ->
+                                onImageCaptured(uri)
+                                onCloseCamera()
+                                isLoading = false
+                            }
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                ) {
+                    Icon(Icons.Default.Face, contentDescription = stringResource(id = R.string.capture_photo))
+                }
+            }
+
             Button(
                 onClick = {
-                    imageCapture?.let {
-                        captureImage(context, it) { uri ->
-                            onImageCaptured(uri)
-                        }
-                    }
+                    onCloseCamera()
                 },
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier.align(Alignment.BottomEnd)
             ) {
-                Icon(Icons.Default.Face, contentDescription = stringResource(id = R.string.capture_photo))
+                Icon(Icons.Filled.Close, contentDescription = stringResource(id = R.string.close_camera))
             }
-        }
-
-        Button(
-            onClick = {
-                onCloseCamera()
-            },
-            modifier = Modifier.align(Alignment.BottomEnd)
-        ) {
-            Icon(Icons.Filled.Close, contentDescription = stringResource(id = R.string.close_camera))
         }
     }
 }
@@ -397,7 +426,11 @@ fun captureImage(
             }
 
             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                onImageCaptured(Uri.fromFile(photoFile))
+                val imageUri = Uri.fromFile(photoFile)
+
+                detectAndCropFace(context, imageUri) { croppedUri ->
+                    onImageCaptured(croppedUri)
+                }
             }
         }
     )
@@ -431,104 +464,76 @@ fun processImageProxy(
 }
 
 @RequiresApi(Build.VERSION_CODES.P)
+fun detectAndCropFace(context: Context, uri: Uri, onCropped: (Uri) -> Unit) {
+    val source = ImageDecoder.createSource(context.contentResolver, uri)
+    val bitmap = ImageDecoder.decodeBitmap(source)
+
+    val image = InputImage.fromBitmap(bitmap, 0)
+
+    val options = FaceDetectorOptions.Builder()
+        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+        .build()
+
+    val detector = FaceDetection.getClient(options)
+
+    detector.process(image)
+        .addOnSuccessListener { faces ->
+            if (faces.isNotEmpty()) {
+                val face = faces[0]
+                val bounds = face.boundingBox
+
+                val faceWidth = bounds.width()
+                val faceHeight = bounds.height()
+                val size = maxOf(faceWidth, faceHeight)
+
+                val centerX = bounds.centerX()
+                val centerY = bounds.centerY()
+
+                val left = (centerX - size / 2).coerceAtLeast(0)
+                val top = (centerY - size / 2).coerceAtLeast(0)
+                val right = (centerX + size / 2).coerceAtMost(bitmap.width)
+                val bottom = (centerY + size / 2).coerceAtMost(bitmap.height)
+
+                val croppedBitmap = Bitmap.createBitmap(
+                    bitmap,
+                    left,
+                    top,
+                    right - left,
+                    bottom - top
+                )
+
+                val croppedFile = File(context.getExternalFilesDir(null), CROPPED_PHOTO_FILE_NAME)
+                FileOutputStream(croppedFile).use { out ->
+                    croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+                }
+
+                onCropped(Uri.fromFile(croppedFile))
+            } else {
+                onCropped(uri)
+            }
+        }
+        .addOnFailureListener {
+            it.printStackTrace()
+            onCropped(uri)
+        }
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun ImagePreview(uri: Uri) {
     val context = LocalContext.current
     val bitmap = remember(uri) {
-        ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, uri))
+        val source = ImageDecoder.createSource(context.contentResolver, uri)
+        ImageDecoder.decodeBitmap(source)
     }
+
     Image(
         bitmap = bitmap.asImageBitmap(),
         contentDescription = null,
-        modifier = Modifier.size(200.dp)
+        modifier = Modifier
+            .width(200.dp)
+            .height(200.dp)
+            .aspectRatio(1f)
+
     )
-}
-
-@Composable
-fun OsmMapView(modifier: Modifier = Modifier, pos: MutableState<GeoPoint?>) {
-    val context = LocalContext.current
-
-    Configuration.getInstance().load(context, context.getSharedPreferences("osm", MODE_PRIVATE))
-
-    val mapView = remember {
-        MapView(context).apply {
-            setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
-            setMultiTouchControls(true)
-            controller.setZoom(15.0)
-            controller.setCenter(GeoPoint(-6.914744, 107.609810))
-        }
-    }
-
-    val currentMarker = remember { mutableStateOf<Marker?>(null) }
-
-    fun addOrMoveMarker(geoPoint: IGeoPoint) {
-        currentMarker.value?.let { existingMarker ->
-            existingMarker.position = geoPoint as GeoPoint
-            mapView.invalidate()
-        } ?: run {
-            val marker = Marker(mapView).apply {
-                position = geoPoint as GeoPoint
-                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                pos.value = geoPoint
-            }
-            mapView.overlays.add(marker)
-            currentMarker.value = marker
-            mapView.invalidate()
-        }
-    }
-
-    fun removeMarker() {
-        currentMarker.value?.let { marker ->
-            mapView.overlays.remove(marker)
-            currentMarker.value = null
-            mapView.invalidate()
-        }
-    }
-
-    mapView.setOnTouchListener { _, motionEvent ->
-        if (motionEvent.action == MotionEvent.ACTION_UP) {
-            val existingMarker = currentMarker.value
-
-            if (existingMarker != null) {
-                val existingGeoPoint = existingMarker.position
-                val markerPositionInPixels = mapView.projection.toPixels(existingGeoPoint, null)
-                val newGeoPoint = mapView.projection.fromPixels(motionEvent.x.toInt(), motionEvent.y.toInt())
-                val newMarkerPositionInPixels = mapView.projection.toPixels(newGeoPoint, null)
-                if (Math.abs(markerPositionInPixels.x - newMarkerPositionInPixels.x) < 10 && Math.abs(markerPositionInPixels.y - newMarkerPositionInPixels.y) < 10) {
-                    removeMarker()
-                } else {
-                    addOrMoveMarker(newGeoPoint)
-                }
-            } else {
-                addOrMoveMarker(mapView.projection.fromPixels(motionEvent.x.toInt(), motionEvent.y.toInt()))
-            }
-        }
-        mapView.performClick()
-    }
-
-    AndroidView(
-        factory = { mapView },
-        modifier = modifier
-            .pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
-                    change.consume()
-                    val newCenter = mapView.projection.fromPixels(
-                        mapView.width / 2 - dragAmount.x.toInt(),
-                        mapView.height / 2 - dragAmount.y.toInt()
-                    )
-
-                    mapView.controller.setCenter(newCenter)
-                    mapView.zoomController.setZoomInEnabled(true)
-                    mapView.zoomController.setZoomOutEnabled(true)
-                    mapView.zoomController.setVisibility(CustomZoomButtonsController.Visibility.ALWAYS)
-                }
-            }
-    )
-
-    DisposableEffect(Unit) {
-        onDispose {
-            Configuration.getInstance().save(context, context.getSharedPreferences("osm", MODE_PRIVATE))
-            mapView.onDetach()
-        }
-    }
 }
