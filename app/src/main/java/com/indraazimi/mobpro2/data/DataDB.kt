@@ -12,6 +12,7 @@ class DataDB {
         const val KELAS_PATH = "kelas"
         const val MAHASISWA_PATH = "mahasiswa"
         const val KEY_DOSEN_ID = "dosenId"
+        const val MODUL_PATH = "modul"
 
         @Volatile
         var INSTANCE: DataDB? = null

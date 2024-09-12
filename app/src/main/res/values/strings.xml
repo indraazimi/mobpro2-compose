@@ -15,4 +15,26 @@
     <string name="email">Email</string>
 
     <string name="your_class">Your Classes:</string>
+
+    <string name="add_module">Add Module</string>
+
+    <string name="description">Description</string>
+
+    <string name="profile">Profile</string>
+
+    <string name="student_list">Student List</string>
+
+    <string name="module_list">Module List</string>
+
+    <string name="class_menu">Class Menu</string>
+
+    <string name="enter_title">Enter Title</string>
+
+    <string name="title">Title</string>
+
+    <string name="cancel">Cancel</string>
+
+    <string name="new_title">New Title</string>
+
+    <string name="enter_new_title">Enter New Title</string>
 </resources>

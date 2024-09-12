@@ -8,9 +8,11 @@ import com.indraazimi.mobpro2.data.DataDB.Companion.DOSEN_PATH
 import com.indraazimi.mobpro2.data.DataDB.Companion.KELAS_PATH
 import com.indraazimi.mobpro2.data.DataDB.Companion.KEY_DOSEN_ID
 import com.indraazimi.mobpro2.data.DataDB.Companion.MAHASISWA_PATH
+import com.indraazimi.mobpro2.data.DataDB.Companion.MODUL_PATH
 import com.indraazimi.mobpro2utils.models.Dosen
 import com.indraazimi.mobpro2utils.models.Kelas
 import com.indraazimi.mobpro2utils.models.Mahasiswa
+import com.indraazimi.mobpro2utils.models.Modul
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -121,5 +123,55 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
                 }
             })
         awaitClose { db.getReference(KELAS_PATH).child(kelasId).child(MAHASISWA_PATH).removeEventListener(listener) }
+    }
+
+    override fun addModulToKelas(kelasId: String, modul: Modul) {
+        db.getReference(KELAS_PATH).child(kelasId).child(MODUL_PATH).push().setValue(modul)
+    }
+
+    override suspend fun getModulByKelasID(kelasId: String): Flow<List<Modul>> = callbackFlow {
+        val listener = db.getReference(KELAS_PATH).child(kelasId).child(MODUL_PATH)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val dataList = snapshot.children.mapNotNull {
+                        it.getValue(Modul::class.java)?.apply {
+                            this.id = it.key ?: ""
+                        }
+                    }
+                    trySend(dataList)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    close(error.toException())
+                }
+            })
+        awaitClose { db.getReference(KELAS_PATH).child(kelasId).child(MODUL_PATH).removeEventListener(listener) }
+    }
+
+    override suspend fun getModulByID(modulId: String): Flow<Modul?> = callbackFlow {
+        val listener = db.getReference(MODUL_PATH).child(modulId)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val modul = snapshot.getValue(Modul::class.java)?.apply {
+                        this.id = snapshot.key ?: ""
+                    }
+                    trySend(modul)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    close(error.toException())
+                }
+            })
+        awaitClose { db.getReference(MODUL_PATH).child(modulId).removeEventListener(listener) }
+    }
+
+    override fun updateModul(kelasId: String, modulId: String, modul: Modul) {
+        db.getReference(KELAS_PATH).child(kelasId).child(MODUL_PATH).child(modulId).setValue(modul)
+    }
+
+    override fun deleteModul(kelasId: String, modules: Set<Modul>) {
+        modules.forEach{
+            db.getReference(KELAS_PATH).child(kelasId).child(MODUL_PATH).child(it.id).removeValue()
+        }
     }
 }

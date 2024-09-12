@@ -17,14 +17,29 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,15 +51,21 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.indraazimi.mobpro2.R
 import com.indraazimi.mobpro2.navigation.Screen
+import com.indraazimi.mobpro2.ui.theme.Mobpro2Theme
 import com.indraazimi.mobpro2.viewmodels.DataViewModel
 import com.indraazimi.mobpro2utils.models.Kelas
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController, user: MutableState<FirebaseUser?>, modifier: Modifier) {
+    var showMenu by remember { mutableStateOf(false) }
+
     val viewModel: DataViewModel = viewModel()
     val dosen by viewModel.selectedDosen.collectAsStateWithLifecycle()
     val kelas by viewModel.allKelas.collectAsStateWithLifecycle()
@@ -62,48 +83,99 @@ fun ProfileScreen(navController: NavController, user: MutableState<FirebaseUser?
         }
     }
 
-    if (loading) {
-        Box(
+    Mobpro2Theme {
+        Scaffold(
+            floatingActionButton = {
+                FloatingActionButton(onClick = {
+                    navController.navigate(Screen.AddClass.route)
+                }) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                }
+            },
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(text = stringResource(id = R.string.profile))
+                    },
+                    colors = TopAppBarDefaults.mediumTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.primary,
+                    ),
+                    actions = {
+                        val currentBackStackEntry = navController.currentBackStackEntryAsState().value
+                        if (currentBackStackEntry?.destination?.route != Screen.Login.route) {
+                            IconButton(onClick = {
+                                showMenu = true
+                            }) {
+                                Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                            }
+
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    onClick = {
+                                        FirebaseAuth.getInstance().signOut()
+                                        user.value = null
+                                        navController.navigate(Screen.Login.route)
+                                        showMenu = false
+                                    },
+                                    text = {
+                                        Text(text = stringResource(R.string.logout))
+                                    }
+                                )
+                            }
+                        }
+                    },
+                )
+            },
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
-            CircularProgressIndicator()
-        }
-    } else {
+        ) { paddingValue ->
+            if (loading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
 
-        Column(
-            modifier = modifier
-                .padding(16.dp)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
-        ) {
-            ProfileCard(
-                photoUrl = user.value?.photoUrl.toString(),
-                name = dosen?.nama ?: "",
-                lecturerCode = dosen?.kodeDosen ?: "",
-                email = user.value?.email ?: ""
-            )
+                Column(
+                    modifier = modifier
+                        .padding(paddingValue)
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top,
+                ) {
+                    ProfileCard(
+                        photoUrl = user.value?.photoUrl.toString(),
+                        name = dosen?.nama ?: "",
+                        lecturerCode = dosen?.kodeDosen ?: "",
+                        email = user.value?.email ?: ""
+                    )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = stringResource(id = R.string.your_class),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-            )
+                    Text(
+                        text = stringResource(id = R.string.your_class),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                    )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 16.dp),
-            ) {
-                items(kelas) {
-                    ClassList(kelas = it) {
-                        navController.navigate(Screen.StudentList.withClassID(it.id))
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 16.dp),
+                    ) {
+                        items(kelas) {
+                            ClassList(kelas = it) {
+                                navController.navigate(Screen.ClassMenu.withClassID(it.id))
+                            }
+                        }
                     }
                 }
             }

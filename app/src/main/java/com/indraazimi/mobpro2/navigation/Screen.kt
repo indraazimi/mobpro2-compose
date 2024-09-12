@@ -8,4 +8,10 @@ sealed class Screen(val route: String) {
     data object StudentList : Screen("studentListScreen/{classId}") {
         fun withClassID(classId: String) = "studentListScreen/$classId"
     }
+    data object ModuleList : Screen("moduleListScreen/{classId}") {
+        fun withClassID(classId: String) = "moduleListScreen/$classId"
+    }
+    data object ClassMenu : Screen("classMenuScreen/{classId}") {
+        fun withClassID(classId: String) = "classMenuScreen/$classId"
+    }
 }

@@ -17,4 +17,26 @@
     <string name="email">Email</string>
 
     <string name="your_class">Kelas Anda:</string>
+
+    <string name="add_module">Tambah Modul</string>
+
+    <string name="description">Deskripsi</string>
+
+    <string name="profile">Profil</string>
+
+    <string name="student_list">Daftar Mahasiswa</string>
+
+    <string name="module_list">Daftar Modul</string>
+
+    <string name="class_menu">Menu Kelas</string>
+
+    <string name="enter_title">Masukkan Judul</string>
+
+    <string name="title">Judul</string>
+
+    <string name="cancel">Batal</string>
+
+    <string name="new_title">Judul Baru</string>
+
+    <string name="enter_new_title">Masukkan Judul Baru</string>
 </resources>

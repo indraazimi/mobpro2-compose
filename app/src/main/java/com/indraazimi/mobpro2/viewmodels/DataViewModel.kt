@@ -7,6 +7,7 @@ import com.indraazimi.mobpro2.data.DataDao
 import com.indraazimi.mobpro2utils.models.Dosen
 import com.indraazimi.mobpro2utils.models.Kelas
 import com.indraazimi.mobpro2utils.models.Mahasiswa
+import com.indraazimi.mobpro2utils.models.Modul
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +28,12 @@ class DataViewModel() : ViewModel() {
 
     private val _allMahasiswa: MutableStateFlow<List<Mahasiswa>> = MutableStateFlow(emptyList())
     val allMahasiswa: StateFlow<List<Mahasiswa>> = _allMahasiswa.asStateFlow()
+
+    private val _allModul: MutableStateFlow<List<Modul>> = MutableStateFlow(emptyList())
+    val allModul: StateFlow<List<Modul>> = _allModul.asStateFlow()
+
+    private val _selectedModul: MutableStateFlow<Modul?> = MutableStateFlow(null)
+    val selectedModul: StateFlow<Modul?> = _selectedModul.asStateFlow()
 
     private val _loading: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
@@ -84,6 +91,50 @@ class DataViewModel() : ViewModel() {
                 _allMahasiswa.value = mahasiswaList
                 _loading.value = false
             }
+        }
+    }
+
+    fun addModulToKelas(kelasId: String, modul: Modul) {
+        viewModelScope.launch {
+            _loading.value = true
+            dataDao.addModulToKelas(kelasId, modul)
+            _loading.value = false
+        }
+    }
+
+    fun getModulByKelasID(kelasId: String) {
+        viewModelScope.launch {
+            _loading.value = true
+            dataDao.getModulByKelasID(kelasId).collect { modulList ->
+                _allModul.value = modulList
+                _loading.value = false
+            }
+        }
+    }
+
+    fun getModulByID(modulId: String) {
+        viewModelScope.launch {
+            _loading.value = true
+            dataDao.getModulByID(modulId).collect { modul ->
+                _selectedModul.value = modul
+                _loading.value = false
+            }
+        }
+    }
+
+    fun updateModul(kelasId: String, modulId: String, modul: Modul) {
+        viewModelScope.launch {
+            _loading.value = true
+            dataDao.updateModul(kelasId, modulId, modul)
+            _loading.value = false
+        }
+    }
+
+    fun deleteModul(kelasId: String, modules: Set<Modul>) {
+        viewModelScope.launch {
+            _loading.value = true
+            dataDao.deleteModul(kelasId, modules)
+            _loading.value = false
         }
     }
 }
