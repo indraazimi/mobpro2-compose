@@ -41,4 +41,6 @@
     <string name="latitude">Garis Lintang</string>
 
     <string name="longitude">Garis Bujur</string>
+
+    <string name="location_permission_denied">Izin lokasi ditolak</string>
 </resources>
