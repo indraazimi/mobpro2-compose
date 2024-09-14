@@ -22,6 +22,7 @@ googleAccompanist = "0.19.0"
 googleMlKit = "16.1.7"
 firebaseStorageKtx = "21.0.0"
 osmdroid = "6.1.13"
+playServicesLocation = "21.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -53,6 +54,7 @@ google-accompanist-permissions = { module = "com.google.accompanist:accompanist-
 google-mlkit-face-detection = { module = "com.google.mlkit:face-detection", version.ref = "googleMlKit" }
 firebase-storage-ktx = { module = "com.google.firebase:firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
 osmdroid-android = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroid" }
+google-gms-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

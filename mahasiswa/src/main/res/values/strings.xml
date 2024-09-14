@@ -39,4 +39,6 @@
     <string name="latitude">Latitude</string>
 
     <string name="longitude">Longitude</string>
+
+    <string name="location_permission_denied">Location permission denied</string>
 </resources>

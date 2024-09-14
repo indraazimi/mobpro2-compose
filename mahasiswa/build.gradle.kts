@@ -81,6 +81,8 @@ dependencies {
 
     implementation(libs.osmdroid.android)
 
+    implementation(libs.google.gms.location)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

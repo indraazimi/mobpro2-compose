@@ -39,4 +39,8 @@
     <string name="new_title">Judul Baru</string>
 
     <string name="enter_new_title">Masukkan Judul Baru</string>
+
+    <string name="delete_confirmation">Apakah Anda yakin ingin menghapus item-item ini?</string>
+
+    <string name="delete">Hapus</string>
 </resources>

@@ -27,10 +27,15 @@ import com.indraazimi.mobpro2.R
 
 @Composable
 fun UpdateModulDialog(
+    oldTitle: String?,
     onDismiss: () -> Unit,
     onSave: (String) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
+
+    if (oldTitle != null) {
+        title = oldTitle
+    }
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(

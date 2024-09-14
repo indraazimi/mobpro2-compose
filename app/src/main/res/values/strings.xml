@@ -37,4 +37,8 @@
     <string name="new_title">New Title</string>
 
     <string name="enter_new_title">Enter New Title</string>
+
+    <string name="delete_confirmation">Are you sure you want to delete these items?</string>
+
+    <string name="delete">Delete</string>
 </resources>

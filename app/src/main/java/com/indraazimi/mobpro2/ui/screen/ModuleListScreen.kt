@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -29,7 +31,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -46,6 +50,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -66,6 +71,7 @@ fun ModuleListScreen(classId: String, modifier: Modifier, user: MutableState<Fir
     var showMenu by remember { mutableStateOf(false) }
     var showAddModuleDialog by remember { mutableStateOf(false) }
     var showUpdateModuleDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
 
     val viewModel: DataViewModel = viewModel()
     val kelas by viewModel.selectedKelas.collectAsStateWithLifecycle()
@@ -108,9 +114,7 @@ fun ModuleListScreen(classId: String, modifier: Modifier, user: MutableState<Fir
                         when (actionModeState) {
                             ActionModeState.MultipleSelection -> {
                                 IconButton(onClick = {
-                                    viewModel.deleteModul(classId, selectedModules)
-                                    selectedModules = emptySet()
-                                    actionModeState = ActionModeState.None
+                                    showDeleteConfirmationDialog = true
                                 }) {
                                     Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
                                 }
@@ -134,9 +138,7 @@ fun ModuleListScreen(classId: String, modifier: Modifier, user: MutableState<Fir
                                 }
 
                                 IconButton(onClick = {
-                                    viewModel.deleteModul(classId, selectedModules)
-                                    selectedModules = emptySet()
-                                    actionModeState = ActionModeState.None
+                                    showDeleteConfirmationDialog = true
                                 }) {
                                     Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
                                 }
@@ -209,6 +211,7 @@ fun ModuleListScreen(classId: String, modifier: Modifier, user: MutableState<Fir
 
             if (showUpdateModuleDialog) {
                 UpdateModulDialog(
+                    oldTitle = selectedModules.firstOrNull()?.judul,
                     onDismiss = {
                         showUpdateModuleDialog = false
                     },
@@ -221,6 +224,19 @@ fun ModuleListScreen(classId: String, modifier: Modifier, user: MutableState<Fir
                         actionModeState = ActionModeState.None
 
                         showUpdateModuleDialog = false
+                    }
+                )
+            }
+
+            if (showDeleteConfirmationDialog) {
+                DeleteConfirmationDialog(
+                    onDismiss = {
+                        showDeleteConfirmationDialog = false
+                    },
+                    onDelete = {
+                        viewModel.deleteModul(classId, selectedModules)
+                        selectedModules = emptySet()
+                        actionModeState = ActionModeState.None
                     }
                 )
             }
@@ -315,7 +331,48 @@ fun ModuleItemList(
         Text(
             text = item.judul,
             fontWeight = FontWeight.Bold,
-            color = if (isSelected) Color.White else Color.Black
+            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+@Composable
+fun DeleteConfirmationDialog(
+    onDismiss: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+            ) {
+                Text(text = stringResource(id = R.string.delete_confirmation), style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = { onDismiss() }) {
+                        Text(text = stringResource(id = R.string.cancel))
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    TextButton(onClick = {
+                        onDelete()
+                        onDismiss()
+                    }) {
+                        Text(text = stringResource(id = R.string.delete))
+                    }
+                }
+            }
+        }
     }
 }
