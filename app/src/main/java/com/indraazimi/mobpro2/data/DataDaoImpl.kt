@@ -4,11 +4,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.indraazimi.mobpro2.data.DataDB.Companion.DOSEN_PATH
-import com.indraazimi.mobpro2.data.DataDB.Companion.KELAS_PATH
-import com.indraazimi.mobpro2.data.DataDB.Companion.KEY_DOSEN_ID
-import com.indraazimi.mobpro2.data.DataDB.Companion.MAHASISWA_PATH
-import com.indraazimi.mobpro2.data.DataDB.Companion.MODUL_PATH
+import com.indraazimi.mobpro2.types.PathConfig
 import com.indraazimi.mobpro2utils.models.Dosen
 import com.indraazimi.mobpro2utils.models.Kelas
 import com.indraazimi.mobpro2utils.models.Mahasiswa
@@ -17,7 +13,13 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
+class DataDaoImpl(val db: FirebaseDatabase, pathConfig: PathConfig) : DataDao {
+    val DOSEN_PATH = pathConfig.dosenPath
+    val KELAS_PATH = pathConfig.kelasPath
+    val MAHASISWA_PATH = pathConfig.mahasiswaPath
+    val MODUL_PATH = pathConfig.modulPath
+    val KEY_DOSEN_ID = pathConfig.keyDosenId
+
     override fun addDosen(dosen: Dosen) {
         db.getReference(DOSEN_PATH).child(dosen.id).setValue(dosen)
     }

@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.indraazimi.mobpro2.data.DataDB
 import com.indraazimi.mobpro2.data.DataDao
+import com.indraazimi.mobpro2.types.PathConfig
+import com.indraazimi.mobpro2.types.ProductionPathConfig
 import com.indraazimi.mobpro2utils.models.Dosen
 import com.indraazimi.mobpro2utils.models.Kelas
 import com.indraazimi.mobpro2utils.models.Mahasiswa
@@ -13,9 +15,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class DataViewModel() : ViewModel() {
+class DataViewModel(
+    pathConfig: PathConfig = ProductionPathConfig()
+) : ViewModel() {
 
-    private val dataDao: DataDao = DataDB.getInstance().dao
+    private val dataDao: DataDao = DataDB.getInstance(
+        pathConfig = pathConfig
+    ).dao
 
     private val _selectedDosen: MutableStateFlow<Dosen?> = MutableStateFlow(null)
     val selectedDosen: StateFlow<Dosen?> = _selectedDosen.asStateFlow()

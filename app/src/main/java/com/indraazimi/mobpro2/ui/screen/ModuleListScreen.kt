@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -97,7 +98,7 @@ fun ModuleListScreen(classId: String, modifier: Modifier, user: MutableState<Fir
             floatingActionButton = {
                 FloatingActionButton(onClick = {
                     showAddModuleDialog = true
-                }) {
+                }, modifier = Modifier.testTag("add_module_fab")) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                 }
             },
@@ -261,7 +262,7 @@ fun ModuleListScreen(classId: String, modifier: Modifier, user: MutableState<Fir
                 Spacer(modifier = Modifier.height(16.dp))
 
                 LazyColumn(
-                    modifier = modifier.fillMaxSize(),
+                    modifier = modifier.fillMaxSize().testTag("module_list"),
                     contentPadding = PaddingValues(8.dp),
                 ) {
                     items(modules) { module ->

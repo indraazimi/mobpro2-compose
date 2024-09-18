@@ -1,33 +1,39 @@
 package com.indraazimi.mobpro2.data
 
+import androidx.annotation.VisibleForTesting
 import com.google.firebase.database.FirebaseDatabase
+import com.indraazimi.mobpro2.types.PathConfig
 
-class DataDB {
+class DataDB(
+    private val pathConfig: PathConfig
+) {
     private val database = FirebaseDatabase.getInstance()
 
-    val dao = DataDaoImpl(database)
+    val dao = DataDaoImpl(database, pathConfig)
 
     companion object {
-        const val DOSEN_PATH = "dosen"
-        const val KELAS_PATH = "kelas"
-        const val MAHASISWA_PATH = "mahasiswa"
-        const val KEY_DOSEN_ID = "dosenId"
-        const val MODUL_PATH = "modul"
-
         @Volatile
         var INSTANCE: DataDB? = null
 
-        fun getInstance(): DataDB {
+        fun getInstance(pathConfig: PathConfig): DataDB {
             synchronized(this) {
                 var instance = INSTANCE
 
                 if (instance == null) {
-                    instance = DataDB()
+                    instance = DataDB(pathConfig)
                     INSTANCE = instance
                 }
 
                 return instance
             }
         }
+    }
+
+    @VisibleForTesting
+    fun clear() {
+        database.getReference(pathConfig.dosenPath).removeValue()
+        database.getReference(pathConfig.kelasPath).removeValue()
+        database.getReference(pathConfig.mahasiswaPath).removeValue()
+        database.getReference(pathConfig.modulPath).removeValue()
     }
 }

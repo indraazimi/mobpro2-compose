@@ -48,9 +48,6 @@ fun AddClassScreen(navController: NavController, user: MutableState<FirebaseUser
 
     var nameData by remember { mutableStateOf("") }
 
-    if (user.value == null) {
-        navController.navigate(Screen.Login.route)
-    }
     var showMenu by remember { mutableStateOf(false) }
 
     Mobpro2Theme {
