@@ -1,0 +1,6 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="notice" value="Copyright (c) &amp;#36;originalComment.match(&quot;Copyright \(c\) (\d+)&quot;, 1, &quot;-&quot;, &quot;&amp;#36;today.year&quot;)&amp;#36;today.year Indra Azimi. All rights reserved.&#10;&#10;Dibuat untuk buku berjudul &quot;Pemrograman Android Lanjut&quot;.&#10;Dilarang melakukan penggandaan dan atau komersialisasi,&#10;sebagian atau seluruh bagian, baik cetak maupun elektronik&#10;terhadap project ini tanpa izin pemilik hak cipta." />
+    <option name="myName" value="mobpro" />
+  </copyright>
+</component>
