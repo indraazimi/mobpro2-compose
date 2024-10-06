@@ -11,4 +11,6 @@
 <resources>
     <string name="login_intro">Untuk memulai, silakan masuk\ndengan akun Google.</string>
     <string name="login">Pilih akun</string>
+    <string name="lainnya">Opsi lainnya</string>
+    <string name="logout">Keluar</string>
 </resources>
