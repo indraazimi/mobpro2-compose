@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.indraazimi.mobpro2.R
+import com.indraazimi.mobpro2.ui.screen.main.MainScreen
 import com.indraazimi.mobpro2s.ui.WelcomeScreen
 
 @Composable
@@ -33,4 +34,6 @@ fun DosenApp() {
             )
         }
     }
+
+    userFlow?.let { MainScreen(it) }
 }
