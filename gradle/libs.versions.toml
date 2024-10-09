@@ -11,6 +11,7 @@ composeBom = "2024.09.02"
 firebaseBom = "33.4.0"
 firebaseUiAuth = "7.2.0"
 coilCompose = "2.7.0"
+googleServices = "4.4.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -35,3 +36,4 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose"
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
