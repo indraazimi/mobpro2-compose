@@ -1,1 +1,4 @@
 /build
+
+# Project akan di-push ke public repo Github, maka file ini kita abaikan
+google-services.json
