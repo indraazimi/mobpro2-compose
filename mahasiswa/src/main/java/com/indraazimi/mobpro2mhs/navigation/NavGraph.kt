@@ -5,10 +5,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseUser
 import com.indraazimi.mobpro2mhs.ui.screen.AddDataScreen
+import com.indraazimi.mobpro2mhs.ui.screen.ClassDetailScreen
 import com.indraazimi.mobpro2mhs.ui.screen.LoginScreen
 import com.indraazimi.mobpro2mhs.ui.screen.MapScreen
 import com.indraazimi.mobpro2mhs.ui.screen.ProfileScreen
@@ -32,7 +35,7 @@ fun SetupNavGraph(
         composable(
             route = Screen.Profile.route,
         ) {
-            ProfileScreen(user = user, modifier = modifier)
+            ProfileScreen(user = user, modifier = modifier, navController = navController)
         }
         composable(
             route = Screen.AddData.route,
@@ -43,6 +46,13 @@ fun SetupNavGraph(
             route = Screen.Map.route,
         ) {
             MapScreen(navController = navController, lat = lat, lon = lon, address = address, modifier = modifier)
+        }
+        composable(
+            route = Screen.ClassDetail.route,
+            arguments = listOf(navArgument("classId") { type = NavType.StringType })
+        ) {
+            val classId = it.arguments?.getString("classId") ?: ""
+            ClassDetailScreen(classId = classId, navController = navController, modifier = modifier)
         }
     }
 }

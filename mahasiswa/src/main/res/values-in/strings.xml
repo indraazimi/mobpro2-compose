@@ -43,4 +43,8 @@
     <string name="longitude">Garis Bujur</string>
 
     <string name="location_permission_denied">Izin lokasi ditolak</string>
+
+    <string name="view_class_detail">Lihat Detail Kelas</string>
+
+    <string name="hide_class_detail">Sembunyikan Detail Kelas</string>
 </resources>

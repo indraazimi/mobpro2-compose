@@ -14,6 +14,7 @@ import com.indraazimi.mobpro2mhs.data.DataDao
 import com.indraazimi.mobpro2mhs.ui.screen.PROFILE_PHOTO_PATH
 import com.indraazimi.mobpro2utils.models.Kelas
 import com.indraazimi.mobpro2utils.models.Mahasiswa
+import com.indraazimi.mobpro2utils.models.Modul
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,6 +35,12 @@ class DataViewModel : ViewModel() {
 
     private val _selectedMahasiswa: MutableStateFlow<Mahasiswa?> = MutableStateFlow(null)
     val selectedMahasiswa: StateFlow<Mahasiswa?> = _selectedMahasiswa.asStateFlow()
+
+    private val _allModules: MutableStateFlow<List<Modul>> = MutableStateFlow(emptyList())
+    val allModules: StateFlow<List<Modul>> = _allModules.asStateFlow()
+
+    private val _selectedModul: MutableStateFlow<Modul?> = MutableStateFlow(null)
+    val selectedModul: StateFlow<Modul?> = _selectedModul.asStateFlow()
 
     private val _loading: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
@@ -114,6 +121,26 @@ class DataViewModel : ViewModel() {
                 _imageUri.value = it
                 _loading.value = false
             }.await()
+        }
+    }
+
+    fun getModulesByKelasID(kelasId: String) {
+        viewModelScope.launch {
+            _loading.value = true
+            dataDao.getModulesByKelasID(kelasId).collect {
+                _allModules.value = it
+                _loading.value = false
+            }
+        }
+    }
+
+    fun getModuleByID(modulId: String) {
+        viewModelScope.launch {
+            _loading.value = true
+            dataDao.getModuleByID(modulId).collect {
+                _selectedModul.value = it
+                _loading.value = false
+            }
         }
     }
 }

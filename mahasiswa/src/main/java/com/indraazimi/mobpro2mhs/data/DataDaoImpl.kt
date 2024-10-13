@@ -7,8 +7,10 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.indraazimi.mobpro2mhs.data.DataDB.Companion.KELAS_PATH
 import com.indraazimi.mobpro2mhs.data.DataDB.Companion.MAHASISWA_PATH
+import com.indraazimi.mobpro2mhs.data.DataDB.Companion.MODUL_PATH
 import com.indraazimi.mobpro2utils.models.Kelas
 import com.indraazimi.mobpro2utils.models.Mahasiswa
+import com.indraazimi.mobpro2utils.models.Modul
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -107,5 +109,42 @@ class DataDaoImpl(val db: FirebaseDatabase) : DataDao {
             })
 
         awaitClose { db.getReference(KELAS_PATH).removeEventListener(listener) }
+    }
+
+    override suspend fun getModulesByKelasID(kelasId: String): Flow<List<Modul>> = callbackFlow {
+        val listener = db.getReference(KELAS_PATH).child(kelasId).child(MODUL_PATH)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val dataList = snapshot.children.mapNotNull {
+                        val data = it.getValue(Modul::class.java)
+                        data?.id = it.key ?: ""
+                        data
+                    }
+                    trySend(dataList)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    close(error.toException())
+                }
+            })
+
+        awaitClose { db.getReference(KELAS_PATH).child(kelasId).child("modul").removeEventListener(listener) }
+    }
+
+    override suspend fun getModuleByID(modulId: String): Flow<Modul?> = callbackFlow {
+        val listener = db.getReference(KELAS_PATH).child("modul").child(modulId)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val data = snapshot.getValue(Modul::class.java)
+                    data?.id = snapshot.key ?: ""
+                    trySend(data)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    close(error.toException())
+                }
+            })
+
+        awaitClose { db.getReference(KELAS_PATH).child("modul").child(modulId).removeEventListener(listener) }
     }
 }

@@ -41,4 +41,8 @@
     <string name="longitude">Longitude</string>
 
     <string name="location_permission_denied">Location permission denied</string>
+
+    <string name="view_class_detail">View Class Detail</string>
+
+    <string name="hide_class_detail">Hide Class Detail</string>
 </resources>

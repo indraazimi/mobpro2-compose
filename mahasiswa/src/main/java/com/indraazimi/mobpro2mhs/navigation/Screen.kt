@@ -9,4 +9,7 @@ sealed class Screen(val route: String) {
     data object Map : Screen("mapScreen") {
         fun createRoute(lat: MutableState<Double>, long: MutableState<Double>, address: MutableState<String>) = "mapScreen/$lat/$long/$address"
     }
+    data object ClassDetail : Screen("classDetailScreen/{classId}") {
+        fun withClassID(classId: String) = "classDetailScreen/$classId"
+    }
 }

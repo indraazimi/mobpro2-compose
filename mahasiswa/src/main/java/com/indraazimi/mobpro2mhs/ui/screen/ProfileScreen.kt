@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,19 +25,25 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.google.firebase.auth.FirebaseUser
+import com.indraazimi.mobpro2mhs.R
+import com.indraazimi.mobpro2mhs.navigation.Screen
 import com.indraazimi.mobpro2mhs.viewmodels.DataViewModel
 import org.osmdroid.api.IGeoPoint
 import org.osmdroid.config.Configuration
@@ -46,12 +53,19 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
 @Composable
-fun ProfileScreen(user: MutableState<FirebaseUser?>, modifier: Modifier) {
+fun ProfileScreen(user: MutableState<FirebaseUser?>, modifier: Modifier, navController: NavController) {
     val viewModel: DataViewModel = viewModel()
 
     val mahasiswa by viewModel.selectedMahasiswa.collectAsStateWithLifecycle()
     val kelas by viewModel.selectedKelas.collectAsStateWithLifecycle()
     val loading by viewModel.loading.collectAsStateWithLifecycle()
+
+    val configuration = LocalConfiguration.current
+    val isTablet = configuration.screenWidthDp >= 600
+
+    var toggleClassDetailFragment by remember {
+        mutableStateOf(false)
+    }
 
     LaunchedEffect(key1 = user.value?.uid) {
         user.value?.uid?.let { uid ->
@@ -65,7 +79,7 @@ fun ProfileScreen(user: MutableState<FirebaseUser?>, modifier: Modifier) {
         }
     }
 
-    if (loading) {
+    if (loading && !isTablet) {
        Box(
            modifier = Modifier.fillMaxSize(),
            contentAlignment = Alignment.Center
@@ -73,26 +87,63 @@ fun ProfileScreen(user: MutableState<FirebaseUser?>, modifier: Modifier) {
            CircularProgressIndicator()
        }
     } else {
-        Column(
-            modifier = modifier
-                .padding(16.dp)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
+        Row(
+            modifier = Modifier.fillMaxSize()
         ) {
-            ProfileCard(
-                photoUrl = mahasiswa?.fotoProfilUri ?: "",
-                name = mahasiswa?.nama ?: "",
-                nim = mahasiswa?.nim ?: "",
-                email = user.value?.email ?: "",
-                kelas = kelas?.nama ?: "",
-                address = mahasiswa?.address ?: ""
-            )
+            Column(
+                modifier = modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(if (isTablet && toggleClassDetailFragment) 0.5f else 1f)
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top,
+            ) {
+                ProfileCard(
+                    photoUrl = mahasiswa?.fotoProfilUri ?: "",
+                    name = mahasiswa?.nama ?: "",
+                    nim = mahasiswa?.nim ?: "",
+                    email = user.value?.email ?: "",
+                    kelas = kelas?.nama ?: "",
+                    address = mahasiswa?.address ?: ""
+                )
 
-            mahasiswa?.let {
-                Osm(
-                    modifier = modifier.width(300.dp).height(300.dp),
-                    pos = GeoPoint(it.latitude, it.longitude)
+                Button(onClick = {
+                    if (!isTablet) {
+                        navController.navigate(Screen.ClassDetail.withClassID(kelas?.id ?: ""))
+                    } else {
+                        toggleClassDetailFragment = !toggleClassDetailFragment
+                    }
+                }) {
+                    var text by remember {
+                        mutableStateOf(R.string.view_class_detail)
+                    }
+
+                    if (isTablet && toggleClassDetailFragment) {
+                        text = R.string.hide_class_detail
+                    } else {
+                        text = R.string.view_class_detail
+                    }
+
+                    Text(text = stringResource(id = text))
+                }
+
+                mahasiswa?.let {
+                    Osm(
+                        modifier = modifier
+                            .width(300.dp)
+                            .height(300.dp),
+                        pos = GeoPoint(it.latitude, it.longitude)
+                    )
+                }
+            }
+
+            if (isTablet && toggleClassDetailFragment) {
+                ClassDetailFragment(
+                    classId = kelas?.id ?: "",
+                    navController = navController,
+                    modifier = modifier
+                        .fillMaxWidth(0.5f)
+                        .weight(1f)
                 )
             }
         }
