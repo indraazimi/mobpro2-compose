@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(project(":shared"))
     implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore)
     implementation(libs.firebase.ui.auth)
     implementation(libs.compose.material.icons.extended)
 
