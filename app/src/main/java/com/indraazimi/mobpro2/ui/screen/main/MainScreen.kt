@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseUser
 import com.indraazimi.mobpro2.R
 import com.indraazimi.mobpro2s.ui.AppBarWithLogout
@@ -34,6 +35,9 @@ import com.indraazimi.mobpro2s.ui.UserProfileCard
 fun MainScreen(
     user: FirebaseUser
 ) {
+    val factory = ViewModelFactory(user.uid)
+    val viewModel: MainViewModel = viewModel(factory = factory)
+
     var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -58,6 +62,7 @@ fun MainScreen(
 
         if (showDialog) {
             KelasDialog(onDismissRequest = { showDialog = false }) {
+                viewModel.insert(it)
                 showDialog = false
             }
         }
