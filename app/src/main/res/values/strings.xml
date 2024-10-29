@@ -13,4 +13,6 @@
     <string name="kelas">Nama kelas</string>
     <string name="simpan">Simpan</string>
     <string name="batal">Batal</string>
+    <string name="list_kosong">Belum ada data</string>
+    <string name="kembali">Kembali</string>
 </resources>
