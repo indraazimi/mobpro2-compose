@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Mobpro 2M</string>
+    <string name="pilih_kelas">Pilih kelas dulu..</string>
+    <string name="simpan">Simpan</string>
 </resources>
