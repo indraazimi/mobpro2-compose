@@ -58,7 +58,13 @@ fun MainScreen(
     val viewModel: MainViewModel = viewModel()
 
     LaunchedEffect(true) {
-        viewModel.getDataKelas()
+        viewModel.getKelasMahasiswa(user.uid)
+    }
+
+    LaunchedEffect(viewModel.kelasId) {
+        if (viewModel.kelasId == null) {
+            viewModel.getDataKelas()
+        }
     }
 
     Scaffold(
@@ -71,9 +77,22 @@ fun MainScreen(
         ) {
             UserProfileCard(user)
 
-            if (viewModel.dataKelas.isNotEmpty()) {
-                PilihKelas(viewModel.dataKelas) {
-                    viewModel.simpanData(it, user)
+            if (viewModel.kelasId == null) {
+                if (viewModel.dataKelas.isNotEmpty()) {
+                    PilihKelas(viewModel.dataKelas) {
+                        viewModel.simpanData(it, user)
+                    }
+                }
+            }
+
+            viewModel.kelasId?.let {
+                if (it.isNotEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Text(
+                            text = stringResource(R.string.list_kosong),
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
                 }
             }
         }
