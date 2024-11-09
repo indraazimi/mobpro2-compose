@@ -9,11 +9,13 @@
 
 package com.indraazimi.mobpro2.ui.screen.main
 
+import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
@@ -34,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseUser
 import com.indraazimi.mobpro2.R
+import com.indraazimi.mobpro2s.model.Kelas
 import com.indraazimi.mobpro2s.ui.AppBarWithLogout
 import com.indraazimi.mobpro2s.ui.UserProfileCard
 
@@ -58,37 +61,54 @@ fun MainScreen(
             }
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.padding(innerPadding),
-            contentPadding = PaddingValues(bottom = 84.dp)
+        MainScreenContent(
+            user = user,
+            data = viewModel.data,
+            modifier = Modifier.padding(innerPadding)
         ) {
-            item {
-                UserProfileCard(
-                    user = user,
-                    modifier = Modifier.padding(16.dp)
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
-            }
-
-            items(viewModel.data) {
-                Card(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(start = 16.dp, top = 16.dp, end = 16.dp)
-                ) {
-                    Text(
-                        text = it.nama,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
-                    )
-                }
-            }
+            Log.d("MainScreen", "ID kelas: ${viewModel.dataId[it]}")
         }
 
         if (showDialog) {
             KelasDialog(onDismissRequest = { showDialog = false }) {
                 viewModel.insert(it)
                 showDialog = false
+            }
+        }
+    }
+}
+
+@Composable
+fun MainScreenContent(
+    user: FirebaseUser,
+    data: List<Kelas>,
+    modifier: Modifier = Modifier,
+    onKelasClick: (Int) -> Unit
+) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(bottom = 84.dp)
+    ) {
+        item {
+            UserProfileCard(
+                user = user,
+                modifier = Modifier.padding(16.dp)
+            )
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
+        }
+
+        itemsIndexed(data) { index, kelas ->
+            Card(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(start = 16.dp, top = 16.dp, end = 16.dp)
+                    .clickable { onKelasClick(index) }
+            ) {
+                Text(
+                    text = kelas.nama,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
+                )
             }
         }
     }
