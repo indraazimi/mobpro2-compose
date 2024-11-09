@@ -28,6 +28,9 @@ class MainViewModel : ViewModel() {
 
     private var uid: String = ""
 
+    var dataId = mutableStateListOf<String>()
+        private set
+
     var data = mutableStateListOf<Kelas>()
         private set
 
@@ -48,6 +51,7 @@ class MainViewModel : ViewModel() {
         when (change.type) {
             DocumentChange.Type.ADDED -> {
                 val kelas = change.document.toObject<Kelas>()
+                dataId.add(change.newIndex, change.document.id)
                 data.add(change.newIndex, kelas)
             }
             DocumentChange.Type.MODIFIED -> {
@@ -55,11 +59,14 @@ class MainViewModel : ViewModel() {
                 if (change.oldIndex == change.newIndex) {
                     data[change.oldIndex] = kelas
                 } else {
+                    dataId.removeAt(change.oldIndex)
+                    dataId.add(change.newIndex, change.document.id)
                     data.removeAt(change.oldIndex)
                     data.add(change.newIndex, kelas)
                 }
             }
             DocumentChange.Type.REMOVED -> {
+                dataId.removeAt(change.oldIndex)
                 data.removeAt(change.oldIndex)
             }
         }
