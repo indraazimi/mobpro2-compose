@@ -10,7 +10,9 @@
 package com.indraazimi.mobpro2.ui.screen.main
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,12 +26,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,6 +41,7 @@ import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseUser
 import com.indraazimi.mobpro2.R
 import com.indraazimi.mobpro2.navigation.Screen
+import com.indraazimi.mobpro2.ui.screen.detail.DetailScreenContent
 import com.indraazimi.mobpro2s.model.Kelas
 import com.indraazimi.mobpro2s.ui.AppBarWithLogout
 import com.indraazimi.mobpro2s.ui.UserProfileCard
@@ -49,6 +54,10 @@ fun MainScreen(
     val factory = ViewModelFactory(user.uid)
     val viewModel: MainViewModel = viewModel(factory = factory)
 
+    val configuration = LocalConfiguration.current
+    val isTwoPane = configuration.smallestScreenWidthDp >= 600
+
+    var selectedId by remember { mutableStateOf<String?>(null) }
     var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -63,16 +72,37 @@ fun MainScreen(
             }
         }
     ) { innerPadding ->
-        MainScreenContent(
-            user = user,
-            data = viewModel.data,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            val route = Screen.Detail.withData(
-                viewModel.dataId[it],
-                viewModel.data[it].nama
-            )
-            navController.navigate(route)
+        Row(modifier = Modifier.padding(innerPadding)) {
+            MainScreenContent(
+                user = user,
+                data = viewModel.data,
+                modifier = Modifier.weight(1f)
+            ) {
+                if (isTwoPane) {
+                    selectedId = viewModel.dataId[it]
+                }
+                else {
+                    val route = Screen.Detail.withData(
+                        viewModel.dataId[it],
+                        viewModel.data[it].nama
+                    )
+                    navController.navigate(route)
+                }
+            }
+
+            if (isTwoPane) {
+                VerticalDivider(
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+
+                if (selectedId == null) {
+                    Box(Modifier.weight(1f))
+                }
+
+                selectedId?.let {
+                    DetailScreenContent(it, Modifier.weight(1f))
+                }
+            }
         }
 
         if (showDialog) {
