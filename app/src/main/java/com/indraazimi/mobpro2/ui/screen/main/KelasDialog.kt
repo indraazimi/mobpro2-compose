@@ -63,7 +63,7 @@ fun KelasDialog(
                         capitalization = KeyboardCapitalization.Characters,
                         imeAction = ImeAction.Done
                     ),
-                    modifier = Modifier.padding(top = 16.dp)
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
