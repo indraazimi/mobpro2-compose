@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.ovh.plrapps.mapcompose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.accompanist.permissions)
+    implementation(libs.google.gms.location)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
