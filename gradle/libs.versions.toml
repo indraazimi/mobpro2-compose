@@ -11,6 +11,7 @@ composeBom = "2026.02.01"
 mapCompose = "3.2.7"
 viewmodelCompose = "2.10.0"
 accompanist = "0.37.3"
+googleGms = "21.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -30,6 +31,7 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 ovh-plrapps-mapcompose = { module = "ovh.plrapps:mapcompose", version.ref = "mapCompose" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "viewmodelCompose" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
+google-gms-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "googleGms" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

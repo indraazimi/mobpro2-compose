@@ -9,7 +9,19 @@
 
 package com.indraazimi.mobpro2.ui.screen
 
+import android.content.Context
+import android.os.Looper
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.indraazimi.mobpro2.model.Coordinate
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import ovh.plrapps.mapcompose.api.addLayer
 import ovh.plrapps.mapcompose.api.scale
 import ovh.plrapps.mapcompose.core.TileStreamProvider
@@ -49,5 +61,30 @@ class MainViewModel : ViewModel() {
             e.printStackTrace()
             null
         }
+    }
+
+    private fun getCoordinateFrom(result: LocationResult): Coordinate? {
+        if (result.locations.isEmpty()) return null
+        val location = result.locations.last()
+        return Coordinate(location.latitude, location.longitude)
+    }
+
+    fun getUserLocation(context: Context): Flow<Coordinate?> = callbackFlow {
+        val client = LocationServices.getFusedLocationProviderClient(context.applicationContext)
+        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000).build()
+
+        val callback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                trySend(getCoordinateFrom(result))
+            }
+        }
+
+        try {
+            client.requestLocationUpdates(request, callback, Looper.getMainLooper())
+        } catch (error: SecurityException) {
+            Log.d("MainViewModel", "Error: ${error.message}")
+        }
+
+        awaitClose { client.removeLocationUpdates(callback) }
     }
 }
