@@ -3,4 +3,7 @@
     <string name="pilih_kelas">Pilih kelas dulu..</string>
     <string name="simpan">Simpan</string>
     <string name="list_kosong">Belum ada modul</string>
+    <string name="channel_id" translatable="false">news</string>
+    <string name="channel_name">Pengumuman</string>
+    <string name="channel_desc">Pengumuman penting terkait kuliah.</string>
 </resources>
