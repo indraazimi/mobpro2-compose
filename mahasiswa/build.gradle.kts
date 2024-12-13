@@ -62,6 +62,7 @@ dependencies {
     implementation(project(":shared"))
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.messaging)
     implementation(libs.firebase.ui.auth)
     implementation(libs.compose.material.icons.extended)
     implementation(libs.accompanist.permissions)
