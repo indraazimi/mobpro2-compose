@@ -73,6 +73,7 @@ fun MainScreen(
 
     LaunchedEffect(true) {
         viewModel.getKelasMahasiswa(user.uid)
+        viewModel.getFcmToken()
 
         if (notifyPermissionState != null && !notifyPermissionState.status.isGranted) {
             notifyPermissionState.launchPermissionRequest()

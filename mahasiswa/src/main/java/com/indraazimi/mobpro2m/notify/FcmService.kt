@@ -13,7 +13,16 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
+import com.google.firebase.messaging.FirebaseMessagingService
 import com.indraazimi.mobpro2m.R
+
+class FcmService : FirebaseMessagingService() {
+
+    override fun onNewToken(token: String) {
+        Log.d("FCM", "Token baru: $token")
+    }
+}
 
 fun createChannel(context: Context) {
     val notificationChannel = NotificationChannel(
