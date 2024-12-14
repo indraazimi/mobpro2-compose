@@ -20,6 +20,10 @@ import com.indraazimi.mobpro2m.R
 
 class FcmService : FirebaseMessagingService() {
 
+    companion object {
+        const val KEY_URL = "url"
+    }
+
     override fun onNewToken(token: String) {
         Log.d("FCM", "Token baru: $token")
     }
