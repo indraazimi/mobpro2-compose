@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -66,7 +67,7 @@ fun WelcomeScreen(
 
 @Composable
 private fun adaptiveIconPainterResource(@DrawableRes id: Int): Painter {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val theme = LocalContext.current.theme
 
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
