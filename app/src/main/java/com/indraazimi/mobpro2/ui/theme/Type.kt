@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Indra Azimi. All rights reserved.
+ * Copyright (c) 2024-2026 Indra Azimi. All rights reserved.
  *
  * Dibuat untuk buku berjudul "Pemrograman Android Lanjut".
  * Dilarang melakukan penggandaan dan atau komersialisasi,
