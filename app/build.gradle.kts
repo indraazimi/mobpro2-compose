@@ -15,7 +15,9 @@ plugins {
 android {
     namespace = "com.indraazimi.mobpro2"
     compileSdk {
-        version = release(36)
+        version = release(36) {
+            minorApiLevel = 1
+        }
     }
 
     defaultConfig {
