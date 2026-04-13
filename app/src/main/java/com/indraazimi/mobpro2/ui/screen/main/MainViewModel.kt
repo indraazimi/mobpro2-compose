@@ -73,7 +73,8 @@ class MainViewModel : ViewModel() {
     }
 
     fun init(userId: String) {
-        if (userId == uid) return
+        dataId.clear()
+        data.clear()
         uid = userId
         registration?.remove()
         registration = db.collection(Kelas.COLLECTION)
